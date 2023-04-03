@@ -1,10 +1,15 @@
 const express = require("express");
 const app = express();
 const port = 3000;
+const path = require("path");
+
+app.set("view engine", "ejs");
+// __dirname is the absolute file location
+app.set("views", path.join(__dirname, "/views"));
 
 app.get("/", (req, res) =>
 {
-    res.send(`Hello from YelpCamp, served from port ${port}!`)
+    res.render("home");
 });
 
 app.listen(port, () =>
