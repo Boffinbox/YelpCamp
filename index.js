@@ -30,12 +30,10 @@ app.get("/", (req, res) =>
     res.render("home");
 });
 
-// test route - this should be post but whatever
-app.get("/makecampground", async (req, res) =>
+app.get("/campgrounds", async (req, res) =>
 {
-    const camp = new Campground({ title: "My Garden", description: "It's free!", price: 0.00 });
-    await camp.save();
-    res.send(camp);
+    const campgrounds = await Campground.find({});
+    res.render("campgrounds/index", { campgrounds });
 });
 
 app.listen(port, () =>
