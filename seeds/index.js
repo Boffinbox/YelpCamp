@@ -28,12 +28,9 @@ const seedDB = async () =>
     for (let i = 0; i < 50; i++)
     {
         // math floor because of zero index array
-        const randomCountry = Math.floor(Math.random() * countries.length);
-        const randomDescriptor = Math.floor(Math.random() * descriptors.length);
-        const randomPlace = Math.floor(Math.random() * places.length);
         const c = new Campground({
-            title: `${descriptors[randomDescriptor]} ${places[randomPlace]}`,
-            location: `${countries[randomCountry]}`
+            title: `${randomFromArray(descriptors)} ${randomFromArray(places)}`,
+            location: `${randomFromArray(countries)}`
         });
         await c.save();
         await console.log(`country number ${i + 1} saved`);
@@ -41,3 +38,9 @@ const seedDB = async () =>
 }
 
 seedDB();
+
+function randomFromArray(chosenArray)
+{
+    const randSelected = Math.floor(Math.random() * chosenArray.length);
+    return chosenArray[randSelected];
+}
