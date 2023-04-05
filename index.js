@@ -1,5 +1,7 @@
 const express = require("express");
 const path = require("path");
+// this one allows us to fake put and patch requests
+const methodOverride = require("method-override");
 
 // start mongoose
 const mongoose = require("mongoose");
@@ -27,6 +29,7 @@ app.set("views", path.join(__dirname, "/views"));
 
 // post handling
 app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
 
 app.get("/", (req, res) =>
 {
@@ -57,11 +60,27 @@ app.post("/campgrounds", async (req, res) =>
 // show read route
 app.get("/campgrounds/:id", async (req, res) =>
 {
-    const campground = await Campground.findById(req.params.id);
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
     res.render("campgrounds/show", { campground });
 });
 
+// show edit route and form
+app.get("/campgrounds/:id/edit", async (req, res) =>
+{
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    res.render("campgrounds/edit", { campground });
+});
 
+// actual edit route, will change db entry
+app.put("/campgrounds/:id", async (req, res) =>
+{
+    const { id } = req.params;
+    const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+    res.redirect(`/campgrounds/${id}`);
+
+});
 
 
 app.listen(port, () =>
