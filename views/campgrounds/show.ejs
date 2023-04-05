@@ -17,9 +17,15 @@
         Location: <%= campground.location %>
     </ul>
     <footer>
-        <a href="/campgrounds/<%= campground._id %>/edit">Edit This Campground</a>
-        <div></div>
-        <a href="/campgrounds">Return to All Campgrounds</a>
+        <p>
+            <a href="/campgrounds/<%= campground._id %>/edit">Edit This Campground</a>
+        </p>
+        <p>
+            <a href="/campgrounds">Return to All Campgrounds</a>
+        </p>
+        <p>
+            <a href="/campgrounds/<%= campground._id %>/delete">Delete This Campground</a>
+        </p>
     </footer>
 </body>
 

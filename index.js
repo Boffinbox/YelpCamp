@@ -82,6 +82,22 @@ app.put("/campgrounds/:id", async (req, res) =>
 
 });
 
+// show delete route
+app.get("/campgrounds/:id/delete", async (req, res) =>
+{
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    res.render("campgrounds/delete", { campground });
+});
+
+// actual delete route
+app.delete("/campgrounds/:id", async (req, res) =>
+{
+    const { id } = req.params;
+    const campground = await Campground.findByIdAndDelete(id);
+    res.render("campgrounds/deletesuccess", { campground });
+});
+
 
 app.listen(port, () =>
 {
