@@ -33,8 +33,10 @@ const seedDB = async () =>
             location: `${randomFromArray(countries)}`
         });
         await c.save();
-        await console.log(`country number ${i + 1} saved`);
+        await console.log(`camp site ${i + 1} saved`);
     }
+    // once done seeding, close and finish up
+    mongoose.connection.close();
 }
 
 seedDB();
