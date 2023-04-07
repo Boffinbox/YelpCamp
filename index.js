@@ -21,20 +21,30 @@ mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp')
 
 const app = express();
 const port = 3000;
+// set view engine and views
+app.set("view engine", "ejs");
+// __dirname is the absolute file location
+app.set("views", path.join(__dirname, "/views"));
 
 // middleware
 // morgan for logging
 const morgan = require("morgan");
 app.use(morgan("tiny"));
+app.use((req, res, next) =>
+{
+    console.log("My first middleware");
+    // we return next to ensure you can't run anything
+    // after the next call
+    return next();
+    console.log("this line will never run");
+})
 // post handling
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 // end middlewares
 
-app.set("view engine", "ejs");
-// __dirname is the absolute file location
-app.set("views", path.join(__dirname, "/views"));
-
+// start routes
+// default route
 app.get("/", (req, res) =>
 {
     res.render("home");
