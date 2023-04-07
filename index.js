@@ -29,14 +29,12 @@ app.set("views", path.join(__dirname, "/views"));
 // middleware
 // morgan for logging
 const morgan = require("morgan");
-app.use(morgan("tiny"));
+//app.use(morgan("tiny"));
 app.use((req, res, next) =>
 {
-    console.log("My first middleware");
-    // we return next to ensure you can't run anything
-    // after the next call
-    return next();
-    console.log("this line will never run");
+    req.requestTime = Date.now();
+    console.log(req.method, req.path, req.requestTime);
+    next();
 })
 // post handling
 app.use(express.urlencoded({ extended: true }));
