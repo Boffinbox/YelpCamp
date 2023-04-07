@@ -36,6 +36,19 @@ app.use((req, res, next) =>
     console.log("Custom Log: ", req.method, req.path, req.requestTime);
     next();
 })
+// secret route protection through middleware
+const verifyChicken = (req, res, next) =>
+{
+    const { password } = req.query;
+    if (password === "chicken")
+    {
+        next();
+    }
+    else
+    {
+        res.send("404 Not Found :(");
+    }
+};
 
 // put and patch request handling
 app.use(express.urlencoded({ extended: true }));
@@ -110,6 +123,11 @@ app.delete("/campgrounds/:id", async (req, res) =>
     const campground = await Campground.findByIdAndDelete(id);
     res.render("campgrounds/deletesuccess", { campground });
 });
+
+app.get("/chicken", verifyChicken, (req, res) =>
+{
+    res.send("Chicken chicken chicken! 🐔");
+})
 
 // if none of your routes get matched,
 // we can send the user to this final route
