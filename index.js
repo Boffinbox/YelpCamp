@@ -29,14 +29,15 @@ app.set("views", path.join(__dirname, "/views"));
 // middleware
 // morgan for logging
 const morgan = require("morgan");
-//app.use(morgan("tiny"));
+app.use(morgan("tiny"));
 app.use((req, res, next) =>
 {
     req.requestTime = Date.now();
-    console.log(req.method, req.path, req.requestTime);
+    console.log("Custom Log: ", req.method, req.path, req.requestTime);
     next();
 })
-// post handling
+
+// put and patch request handling
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 // end middlewares
@@ -110,6 +111,13 @@ app.delete("/campgrounds/:id", async (req, res) =>
     res.render("campgrounds/deletesuccess", { campground });
 });
 
+// if none of your routes get matched,
+// we can send the user to this final route
+// this is the conventional 404 route
+app.use((req, res) =>
+{
+    res.status(404).send("404 Not Found :(");
+});
 
 app.listen(port, () =>
 {
