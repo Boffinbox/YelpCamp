@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 // this one allows us to fake put and patch requests
 const methodOverride = require("method-override");
+const ejsMate = require("ejs-mate");
 
 // start mongoose
 const mongoose = require("mongoose");
@@ -22,6 +23,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp')
 const app = express();
 const port = 3000;
 // set view engine and views
+app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 // __dirname is the absolute file location
 app.set("views", path.join(__dirname, "/views"));
