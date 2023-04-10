@@ -21,16 +21,42 @@ mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp')
 
 const app = express();
 const port = 3000;
-
-
+// set view engine and views
 app.set("view engine", "ejs");
 // __dirname is the absolute file location
 app.set("views", path.join(__dirname, "/views"));
 
-// post handling
+// middleware
+// morgan for logging
+const morgan = require("morgan");
+app.use(morgan("tiny"));
+app.use((req, res, next) =>
+{
+    req.requestTime = Date.now();
+    console.log("Custom Log: ", req.method, req.path, req.requestTime);
+    next();
+})
+// secret route protection through middleware
+const verifyChicken = (req, res, next) =>
+{
+    const { password } = req.query;
+    if (password === "chicken")
+    {
+        next();
+    }
+    else
+    {
+        res.send("404 Not Found :(");
+    }
+};
+
+// put and patch request handling
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
+// end middlewares
 
+// start routes
+// default route
 app.get("/", (req, res) =>
 {
     res.render("home");
@@ -98,6 +124,18 @@ app.delete("/campgrounds/:id", async (req, res) =>
     res.render("campgrounds/deletesuccess", { campground });
 });
 
+app.get("/chicken", verifyChicken, (req, res) =>
+{
+    res.send("Chicken chicken chicken! 🐔");
+})
+
+// if none of your routes get matched,
+// we can send the user to this final route
+// this is the conventional 404 route
+app.use((req, res) =>
+{
+    res.status(404).send("404 Not Found :(");
+});
 
 app.listen(port, () =>
 {
