@@ -28,9 +28,13 @@ const seedDB = async () =>
     for (let i = 0; i < 50; i++)
     {
         // math floor because of zero index array
+        const price = Math.ceil(Math.random() * 25) + 10;
         const c = new Campground({
             title: `${randomFromArray(descriptors)} ${randomFromArray(places)}`,
-            location: `${randomFromArray(countries)}`
+            location: `${randomFromArray(countries)}`,
+            image: "https://source.unsplash.com/collection/483251",
+            description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum, soluta! Eos maxime dolorum aut perspiciatis veniam ratione vitae eum. Dignissimos tenetur culpa, autem fugiat debitis alias eos veritatis molestiae animi!",
+            price: price
         });
         await c.save();
         await console.log(`camp site ${i + 1} saved`);

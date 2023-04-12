@@ -1,20 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
+<% layout("layouts/boilerplate") %>
+Campground "<%= campground.title %>, <%= campground.location %>" with ID of <%= campground._id %> deleted!
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= campground.title %>> Deleted</title>
-</head>
-
-<body>
-    Campground <%= campground.title %>, with ID of <%= campground._id %>deleted.
-
-    <p>
-        <a href="/campgrounds">Return to all campgrounds</a>
-    </p>
-
-</body>
-
-</html>
+<p>
+    <a href="/campgrounds">Return to all campgrounds</a>
+</p>

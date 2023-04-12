@@ -1,32 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Show Campground</title>
-</head>
-
-<body>
-    <h1><%= campground.title %></h1>
-    <ul>
-        ID: <%= campground._id %>
-    </ul>
-    <ul>
-        Location: <%= campground.location %>
-    </ul>
-    <footer>
-        <p>
-            <a href="/campgrounds/<%= campground._id %>/edit">Edit This Campground</a>
-        </p>
-        <p>
-            <a href="/campgrounds">Return to All Campgrounds</a>
-        </p>
-        <p>
-            <a href="/campgrounds/<%= campground._id %>/delete">Delete This Campground</a>
-        </p>
-    </footer>
-</body>
-
-</html>
+<% layout("layouts/boilerplate") %>
+<div class="row">
+    <div class="col-6 offset-3">
+        <div class="card mb-4">
+            <img src="<%= campground.image %>" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title"><%= campground.title %>, <%= campground.location %></h5>
+                <p class="card-text"><%= campground.description %></p>
+                <p class="card-text">Price: £<%= campground.price %>/night</p>
+            </div>
+            <ul class="list-group"></ul>
+            <div class="card-body">
+                <a class="btn btn-info" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
+                <a class="btn btn-danger    " href="/campgrounds/<%= campground._id %>/delete">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
