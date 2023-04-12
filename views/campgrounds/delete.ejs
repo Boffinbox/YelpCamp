@@ -1,16 +1,17 @@
 <% layout("layouts/boilerplate") %>
-<h1>Deleting <%= campground.title %>, <%= campground.location %>...?</h1>
-ID: <%= campground._id %>
-<p>
-    Are you sure you wish to delete this campground?
-</p>
-
-<p>
-<form action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
-    <button>Yep! Delete it.</button>
-</form>
-</p>
-
-<p>
-    <a href="/campgrounds/<%= campground._id %>">No, return to campground</a>
-</p>
+<div class="row">
+    <div class="col-6 offset-3">
+        <h1 class="text-center">Deleting "<%= campground.title %>", <%= campground.location %>...?</h1>
+        <p>
+            Are you sure you wish to delete this campground?
+        </p>
+        <p>
+        <form action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
+            <button class="btn btn-danger">Yep! Delete it.</button>
+        </form>
+        </p>
+        <p>
+            <a href="/campgrounds/<%= campground._id %>">No, return to campground</a>
+        </p>
+    </div>
+</div>
