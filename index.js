@@ -48,7 +48,8 @@ const verifyChicken = (req, res, next) =>
     }
     else
     {
-        res.send("404 Not Found :(");
+        // res.send("404 Not Found :(");
+        throw new Error("Password required!");
     }
 };
 
@@ -131,12 +132,26 @@ app.get("/chicken", verifyChicken, (req, res) =>
     res.send("Chicken chicken chicken! 🐔");
 })
 
+app.get("/error", (req, res) =>
+{
+    chicken.fly();
+});
+
 // if none of your routes get matched,
 // we can send the user to this final route
 // this is the conventional 404 route
 app.use((req, res) =>
 {
     res.status(404).send("404 Not Found :(");
+});
+
+// error handling comes next
+app.use((err, req, res, next) =>
+{
+    console.log("*****************************");
+    console.log("************ERROR************");
+    console.log("*****************************");
+    res.status(500).send("Oh no! Something went wrong :(");
 });
 
 app.listen(port, () =>
