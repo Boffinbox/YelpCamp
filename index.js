@@ -150,9 +150,6 @@ app.use((req, res) =>
 
 app.use((err, req, res, next) =>
 {
-    console.log("*****************************");
-    console.log("************ERROR************");
-    console.log("*****************************");
     const { status = 500, message = "Something went wrong." } = err;
     res.status(status).send(`${status}: ${message}`);
 });
