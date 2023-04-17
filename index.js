@@ -3,6 +3,7 @@ const path = require("path");
 // this one allows us to fake put and patch requests
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
+const AppError = require("./apperror");
 
 // start mongoose
 const mongoose = require("mongoose");
@@ -48,8 +49,7 @@ const verifyChicken = (req, res, next) =>
     }
     else
     {
-        // res.send("404 Not Found :(");
-        throw new Error("Password required!");
+        throw new AppError(401, "Wrong Password! :(");
     }
 };
 
@@ -132,9 +132,10 @@ app.get("/chicken", verifyChicken, (req, res) =>
     res.send("Chicken chicken chicken! 🐔");
 })
 
+// fake error route to intentionally cause an error
 app.get("/error", (req, res) =>
 {
-    chicken.fly();
+    throw new AppError(500, "Fake Internal Server Error");
 });
 
 // if none of your routes get matched,
@@ -142,16 +143,18 @@ app.get("/error", (req, res) =>
 // this is the conventional 404 route
 app.use((req, res) =>
 {
-    res.status(404).send("404 Not Found :(");
+    throw new AppError(404, "File not found. :(");
 });
 
 // error handling comes next
+
 app.use((err, req, res, next) =>
 {
     console.log("*****************************");
     console.log("************ERROR************");
     console.log("*****************************");
-    res.status(500).send("Oh no! Something went wrong :(");
+    const { status = 500, message = "Something went wrong." } = err;
+    res.status(status).send(`${status}: ${message}`);
 });
 
 app.listen(port, () =>
