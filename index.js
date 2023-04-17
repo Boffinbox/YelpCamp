@@ -132,6 +132,11 @@ app.get("/chicken", verifyChicken, (req, res) =>
     res.send("Chicken chicken chicken! 🐔");
 })
 
+app.get("/admin", (req, res) =>
+{
+    throw new AppError(403, "You are not an admin!");
+})
+
 // fake error route to intentionally cause an error
 app.get("/error", (req, res) =>
 {
