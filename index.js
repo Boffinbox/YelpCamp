@@ -155,6 +155,8 @@ app.use((req, res) =>
 
 app.use((err, req, res, next) =>
 {
+    // the default value here is in case the error
+    // sent is a regular JS error, and not an AppError
     const { status = 500, message = "Something went wrong." } = err;
     res.status(status).send(`${status}: ${message}`);
 });
