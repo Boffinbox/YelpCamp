@@ -87,11 +87,18 @@ app.post("/campgrounds", async (req, res) =>
 });
 
 // show read route
-app.get("/campgrounds/:id", async (req, res) =>
+app.get("/campgrounds/:id", async (req, res, next) =>
 {
     const { id } = req.params;
     const campground = await Campground.findById(id);
-    res.render("campgrounds/show", { campground });
+    if (!campground)
+    {
+        next(new AppError(404, `No campground found with id:${id}`))
+    }
+    else
+    {
+        res.render("campgrounds/show", { campground });
+    }
 });
 
 // show edit route and form
@@ -108,7 +115,6 @@ app.put("/campgrounds/:id", async (req, res) =>
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     res.redirect(`/campgrounds/${id}`);
-
 });
 
 // show delete route
