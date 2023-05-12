@@ -148,6 +148,10 @@ app.delete("/campgrounds/:id", catchAsync(async (req, res, next) =>
 {
     const { id } = req.params;
     const campground = await Campground.findByIdAndDelete(id);
+    if (!campground)
+    {
+        throw new AppError(404, `No campground found with id:${id} exists to delete`);
+    }
     res.render("campgrounds/deletesuccess", { campground });
 }));
 
