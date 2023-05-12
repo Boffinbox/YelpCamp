@@ -58,6 +58,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 // end middlewares
 
+// utility functions
+function catchAsync(fn)
+{
+    return function (req, res, next)
+    {
+        fn(req, res, next).catch((e) => next(e));
+    }
+}
+
 // start routes
 // default route
 app.get("/", (req, res) =>
@@ -66,18 +75,11 @@ app.get("/", (req, res) =>
 });
 
 // show index route
-app.get("/campgrounds", async (req, res, next) =>
+app.get("/campgrounds", catchAsync(async (req, res, next) =>
 {
-    try
-    {
-        const campgrounds = await Campground.find({});
-        res.render("campgrounds/index", { campgrounds });
-    }
-    catch (e)
-    {
-        next(e);
-    }
-});
+    const campgrounds = await Campground.find({});
+    res.render("campgrounds/index", { campgrounds });
+}));
 
 // show create form
 app.get("/campgrounds/new", (req, res) =>
@@ -86,107 +88,68 @@ app.get("/campgrounds/new", (req, res) =>
 });
 
 // actual create route - redirect to read page
-app.post("/campgrounds", async (req, res, next) =>
+app.post("/campgrounds", catchAsync(async (req, res, next) =>
 {
-    try
-    {
-        const campground = new Campground(req.body.campground);
-        await campground.save();
-        res.redirect(`/campgrounds/${campground._id}`);
-    }
-    catch (e)
-    {
-        next(e);
-    }
-});
+    const campground = new Campground(req.body.campground);
+    await campground.save();
+    res.redirect(`/campgrounds/${campground._id}`);
+}));
 
 // show read route
-app.get("/campgrounds/:id", async (req, res, next) =>
+app.get("/campgrounds/:id", catchAsync(async (req, res, next) =>
 {
-    try
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    if (!campground)
     {
-        const { id } = req.params;
-        const campground = await Campground.findById(id);
-        if (!campground)
-        {
-            throw new AppError(404, `No campground found with id:${id} can be viewed`);
-        }
-        res.render("campgrounds/show", { campground });
+        throw new AppError(404, `No campground found with id:${id} can be viewed`);
     }
-    catch (e)
-    {
-        next(e);
-    }
-});
+    res.render("campgrounds/show", { campground });
+}));
 
 // show edit route and form
-app.get("/campgrounds/:id/edit", async (req, res, next) =>
+app.get("/campgrounds/:id/edit", catchAsync(async (req, res, next) =>
 {
-    try
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    if (!campground)
     {
-        const { id } = req.params;
-        const campground = await Campground.findById(id);
-        if (!campground)
-        {
-            throw new AppError(404, `No campground found with id:${id} is available to edit`);
-        }
-        res.render("campgrounds/edit", { campground });
+        throw new AppError(404, `No campground found with id:${id} is available to edit`);
     }
-    catch (e)
-    {
-        next(e);
-    }
-});
+    res.render("campgrounds/edit", { campground });
+}));
 
 // actual edit route, will change db entry
-app.put("/campgrounds/:id", async (req, res, next) =>
+app.put("/campgrounds/:id", catchAsync(async (req, res, next) =>
 {
-    try
+    const { id } = req.params;
+    const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+    if (!campground)
     {
-        const { id } = req.params;
-        const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
-        if (!campground)
-        {
-            throw new AppError(404, `No campground found with id:${id} can be updated`);
-        }
-        res.redirect(`/campgrounds/${id}`);
+        throw new AppError(404, `No campground found with id:${id} can be updated`);
     }
-    catch (e)
-    {
-        next(e);
-    }
-
-});
+    res.redirect(`/campgrounds/${id}`);
+}));
 
 // show delete route
-app.get("/campgrounds/:id/delete", async (req, res, next) =>
+app.get("/campgrounds/:id/delete", catchAsync(async (req, res, next) =>
 {
-    try
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    if (!campground)
     {
-        const { id } = req.params;
-        const campground = await Campground.findById(id);
-        res.render("campgrounds/delete", { campground });
+        throw new AppError(404, `No campground found with id:${id} can be deleted`);
     }
-    catch (e)
-    {
-        next(e);
-    }
-});
+    res.render("campgrounds/delete", { campground });
+}));
 
 // actual delete route
-app.delete("/campgrounds/:id", async (req, res, next) =>
+app.delete("/campgrounds/:id", catchAsync(async (req, res, next) =>
 {
-    try
-    {
-        const { id } = req.params;
-        const campground = await Campground.findByIdAndDelete(id);
-        res.render("campgrounds/deletesuccess", { campground });
-    }
-    catch (e)
-    {
-        next(e);
-    }
-});
+    const { id } = req.params;
+    const campground = await Campground.findByIdAndDelete(id);
+    res.render("campgrounds/deletesuccess", { campground });
+}));
 
 app.get("/chicken", verifyChicken, (req, res) =>
 {
