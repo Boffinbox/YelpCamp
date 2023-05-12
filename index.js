@@ -109,7 +109,7 @@ app.get("/campgrounds/:id", async (req, res, next) =>
         const campground = await Campground.findById(id);
         if (!campground)
         {
-            throw new AppError(404, `No campground found with id:${id}`);
+            throw new AppError(404, `No campground found with id:${id} can be viewed`);
         }
         res.render("campgrounds/show", { campground });
     }
@@ -128,7 +128,7 @@ app.get("/campgrounds/:id/edit", async (req, res, next) =>
         const campground = await Campground.findById(id);
         if (!campground)
         {
-            throw new AppError(404, `No campground found with id:${id}`);
+            throw new AppError(404, `No campground found with id:${id} is available to edit`);
         }
         res.render("campgrounds/edit", { campground });
     }
@@ -147,7 +147,7 @@ app.put("/campgrounds/:id", async (req, res, next) =>
         const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
         if (!campground)
         {
-            throw new AppError(404, `No campground found with id:${id}`);
+            throw new AppError(404, `No campground found with id:${id} can be updated`);
         }
         res.redirect(`/campgrounds/${id}`);
     }
