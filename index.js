@@ -59,7 +59,7 @@ app.use(methodOverride("_method"));
 // end middlewares
 
 // utility functions
-function catchAsync(fn)
+function tryCatchAsync(fn)
 {
     return function (req, res, next)
     {
@@ -75,7 +75,7 @@ app.get("/", (req, res) =>
 });
 
 // show index route
-app.get("/campgrounds", catchAsync(async (req, res, next) =>
+app.get("/campgrounds", tryCatchAsync(async (req, res, next) =>
 {
     const campgrounds = await Campground.find({});
     res.render("campgrounds/index", { campgrounds });
@@ -88,7 +88,7 @@ app.get("/campgrounds/new", (req, res) =>
 });
 
 // actual create route - redirect to read page
-app.post("/campgrounds", catchAsync(async (req, res, next) =>
+app.post("/campgrounds", tryCatchAsync(async (req, res, next) =>
 {
     const campground = new Campground(req.body.campground);
     await campground.save();
@@ -96,7 +96,7 @@ app.post("/campgrounds", catchAsync(async (req, res, next) =>
 }));
 
 // show read route
-app.get("/campgrounds/:id", catchAsync(async (req, res, next) =>
+app.get("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
 {
     const { id } = req.params;
     const campground = await Campground.findById(id);
@@ -108,7 +108,7 @@ app.get("/campgrounds/:id", catchAsync(async (req, res, next) =>
 }));
 
 // show edit route and form
-app.get("/campgrounds/:id/edit", catchAsync(async (req, res, next) =>
+app.get("/campgrounds/:id/edit", tryCatchAsync(async (req, res, next) =>
 {
     const { id } = req.params;
     const campground = await Campground.findById(id);
@@ -120,7 +120,7 @@ app.get("/campgrounds/:id/edit", catchAsync(async (req, res, next) =>
 }));
 
 // actual edit route, will change db entry
-app.put("/campgrounds/:id", catchAsync(async (req, res, next) =>
+app.put("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
 {
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
@@ -132,7 +132,7 @@ app.put("/campgrounds/:id", catchAsync(async (req, res, next) =>
 }));
 
 // show delete route
-app.get("/campgrounds/:id/delete", catchAsync(async (req, res, next) =>
+app.get("/campgrounds/:id/delete", tryCatchAsync(async (req, res, next) =>
 {
     const { id } = req.params;
     const campground = await Campground.findById(id);
@@ -144,7 +144,7 @@ app.get("/campgrounds/:id/delete", catchAsync(async (req, res, next) =>
 }));
 
 // actual delete route
-app.delete("/campgrounds/:id", catchAsync(async (req, res, next) =>
+app.delete("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
 {
     const { id } = req.params;
     const campground = await Campground.findByIdAndDelete(id);
