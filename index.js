@@ -181,6 +181,22 @@ app.use((req, res) =>
 
 // error handling comes next
 
+function handleValidationError(err)
+{
+    console.dir(err);
+    return new AppError(400, `Validation Failed: ${err.message}`);
+}
+
+app.use((err, req, res, next) =>
+{
+    console.log(err.name);
+    if (err.name === "ValidationError")
+    {
+        err = handleValidationError(err);
+    }
+    next(err);
+});
+
 app.use((err, req, res, next) =>
 {
     // the default value here is in case the error
