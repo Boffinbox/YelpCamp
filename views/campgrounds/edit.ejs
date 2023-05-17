@@ -5,34 +5,34 @@
         <div>
             Campground ID: <%= campground._id %>
         </div>
-        <form action="/campgrounds/<%= campground._id %>?_method=PUT" method="POST">
+        <form action="/campgrounds/<%= campground._id %>?_method=PUT" method="POST" class="needs-validation" novalidate>
             <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
                 <input type="text" id="title" name="campground[title]" class="form-control"
-                    value="<%= campground.title %>">
+                    value="<%= campground.title %>" required>
             </div>
             <div class="mb-3">
                 <label for="location" class="form-label">Location</label>
                 <input type="text" id="location" name="campground[location]" class="form-control"
-                    value="<%= campground.location %>">
+                    value="<%= campground.location %>" required>
             </div>
             <div class="mb-3">
                 <label for="image" class="form-label">Image URL</label>
                 <input type="text" id="image" name="campground[image]" class="form-control"
-                    value="<%= campground.image %>">
+                    value="<%= campground.image %>" required>
             </div>
             <div class="mb-3">
                 <label for="price" class="form-label">Price</label>
                 <div class="input-group">
                     <span class="input-group-text">£</span>
                     <input type="text" id="price" name="campground[price]" class="form-control" placeholder="0.00"
-                        value="<%= campground.price %>">
+                        value="<%= campground.price %>" required>
                 </div>
             </div>
             <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
                 <textarea id="description" name="campground[description]" class="form-control"
-                    placeholder="type here..."><%= campground.description %></textarea>
+                    placeholder="type here..." required><%= campground.description %></textarea>
             </div>
             <div class="mb-3">
                 <button class="btn btn-info">Update Campground</button>
