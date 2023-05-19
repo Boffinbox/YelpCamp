@@ -2,8 +2,10 @@ const express = require("express");
 const path = require("path");
 // this one allows us to fake put and patch requests
 const methodOverride = require("method-override");
+
 const ejsMate = require("ejs-mate");
 const ExpressError = require("./helpers/expresserror");
+const tryCatchAsync = require("./helpers/trycatchasync")
 
 // start mongoose
 const mongoose = require("mongoose");
@@ -57,15 +59,6 @@ const verifyChicken = (req, res, next) =>
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 // end middlewares
-
-// utility functions
-function tryCatchAsync(fn)
-{
-    return function (req, res, next)
-    {
-        fn(req, res, next).catch((e) => next(e));
-    }
-}
 
 // start routes
 // default route
@@ -213,4 +206,3 @@ app.listen(port, () =>
 // campgrounds have:
 // a name/title, a price, a description
 // a location (just a string at this stage)
-// 
