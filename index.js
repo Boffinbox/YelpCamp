@@ -3,7 +3,7 @@ const path = require("path");
 // this one allows us to fake put and patch requests
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
-const AppError = require("./apperror");
+const ExpressError = require("./helpers/expresserror");
 
 // start mongoose
 const mongoose = require("mongoose");
@@ -49,7 +49,7 @@ const verifyChicken = (req, res, next) =>
     }
     else
     {
-        throw new AppError(401, "Wrong Password! :(");
+        throw new ExpressError(401, "Wrong Password! :(");
     }
 };
 
@@ -102,7 +102,7 @@ app.get("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
     const campground = await Campground.findById(id);
     if (!campground)
     {
-        throw new AppError(404, `No campground found with id:${id} can be viewed`);
+        throw new ExpressError(404, `No campground found with id:${id} can be viewed`);
     }
     res.render("campgrounds/show", { campground });
 }));
@@ -114,7 +114,7 @@ app.get("/campgrounds/:id/edit", tryCatchAsync(async (req, res, next) =>
     const campground = await Campground.findById(id);
     if (!campground)
     {
-        throw new AppError(404, `No campground found with id:${id} is available to edit`);
+        throw new ExpressError(404, `No campground found with id:${id} is available to edit`);
     }
     res.render("campgrounds/edit", { campground });
 }));
@@ -126,7 +126,7 @@ app.put("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     if (!campground)
     {
-        throw new AppError(404, `No campground found with id:${id} can be updated`);
+        throw new ExpressError(404, `No campground found with id:${id} can be updated`);
     }
     res.redirect(`/campgrounds/${id}`);
 }));
@@ -138,7 +138,7 @@ app.get("/campgrounds/:id/delete", tryCatchAsync(async (req, res, next) =>
     const campground = await Campground.findById(id);
     if (!campground)
     {
-        throw new AppError(404, `No campground found with id:${id} can be deleted`);
+        throw new ExpressError(404, `No campground found with id:${id} can be deleted`);
     }
     res.render("campgrounds/delete", { campground });
 }));
@@ -150,7 +150,7 @@ app.delete("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
     const campground = await Campground.findByIdAndDelete(id);
     if (!campground)
     {
-        throw new AppError(404, `No campground found with id:${id} exists to delete`);
+        throw new ExpressError(404, `No campground found with id:${id} exists to delete`);
     }
     res.render("campgrounds/deletesuccess", { campground });
 }));
@@ -162,13 +162,13 @@ app.get("/chicken", verifyChicken, (req, res) =>
 
 app.get("/admin", (req, res) =>
 {
-    throw new AppError(403, "You are not an admin!");
+    throw new ExpressError(403, "You are not an admin!");
 })
 
 // fake error route to intentionally cause an error
 app.get("/error", (req, res) =>
 {
-    throw new AppError(500, "Fake Internal Server Error");
+    throw new ExpressError(500, "Fake Internal Server Error");
 });
 
 // if none of your routes get matched,
@@ -176,7 +176,7 @@ app.get("/error", (req, res) =>
 // this is the conventional 404 route
 app.use((req, res) =>
 {
-    throw new AppError(404, "File not found. :(");
+    throw new ExpressError(404, "File not found. :(");
 });
 
 // error handling comes next
@@ -184,7 +184,7 @@ app.use((req, res) =>
 function handleValidationError(err)
 {
     console.dir(err);
-    return new AppError(400, `Validation Failed: ${err.message}`);
+    return new ExpressError(400, `Validation Failed: ${err.message}`);
 }
 
 app.use((err, req, res, next) =>
