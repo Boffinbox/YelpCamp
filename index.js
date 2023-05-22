@@ -86,6 +86,7 @@ app.get("/campgrounds/new", (req, res) =>
 // actual create route - redirect to read page
 app.post("/campgrounds", tryCatchAsync(async (req, res, next) =>
 {
+    if (!req.body.campground) throw new ExpressError(400, "No Campground sent in request body.");
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`);
@@ -170,9 +171,9 @@ app.get("/error", (req, res) =>
 // if none of your routes get matched,
 // we can send the user to this final route
 // this is the conventional 404 route
-app.use((req, res) =>
+app.use((req, res, next) =>
 {
-    throw new ExpressError(404, "File not found. :(");
+    next(new ExpressError(404, "File not found. :("));
 });
 
 // error handling comes next
@@ -185,7 +186,7 @@ function handleValidationError(err)
 
 app.use((err, req, res, next) =>
 {
-    console.log(err.name);
+    console.log(`Error Detected, with name: ${err.name}`);
     if (err.name === "ValidationError")
     {
         err = handleValidationError(err);
