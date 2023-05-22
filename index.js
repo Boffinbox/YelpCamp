@@ -33,12 +33,15 @@ app.set("views", path.join(__dirname, "/views"));
 
 // middleware
 // morgan for logging
-const morgan = require("morgan");
-app.use(morgan("tiny"));
+// const morgan = require("morgan");
+// app.use(morgan("tiny"));
 app.use((req, res, next) =>
 {
     req.requestTime = Date.now();
-    console.log("Custom Log: ", req.method, req.path, req.requestTime);
+    // remember, you could just use morgan
+    // to do this for you!
+    console.log("Custom Log by Boff: ");
+    console.log(`HTTP Method: ${req.method}, Path: ${req.path}, Unix Time ms: ${req.requestTime}`);
     next();
 })
 // secret route protection through middleware
