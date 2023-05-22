@@ -198,8 +198,9 @@ app.use((err, req, res, next) =>
 {
     // the default value here is in case the error
     // sent is a regular JS error, and not an AppError
-    const { status = 500, message = "Something went wrong." } = err;
-    res.status(status).send(`${status}: ${message}`);
+    if (!err.status) err.status = 500;
+    if (!err.message) err.message = "Something went wrong.";
+    res.status(err.status).render("error", { err });
 });
 
 app.listen(port, () =>
