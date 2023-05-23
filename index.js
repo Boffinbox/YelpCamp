@@ -92,7 +92,20 @@ app.get("/campgrounds/new", (req, res) =>
 // actual create route - redirect to read page
 app.post("/campgrounds", tryCatchAsync(async (req, res, next) =>
 {
-    if (!req.body.campground) throw new ExpressError(400, "No Campground sent in request body.");
+    //if (!req.body.campground) throw new ExpressError(400, "No Campground sent in request body.");
+    const campgroundSchema = Joi.object({
+        campground: Joi.object({
+            title: Joi.string().required(),
+            price: Joi.number().required().min(0),
+        }).required()
+    });
+    const { error } = campgroundSchema.validate(req.body);
+    if (error)
+    {
+        const msg = error.details.map(el => el.message).join(',');
+        throw new ExpressError(400, msg);
+    }
+    console.log("tane!");
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`);
