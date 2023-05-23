@@ -119,6 +119,7 @@ app.get("/campgrounds/:id/edit", tryCatchAsync(async (req, res, next) =>
 // actual edit route, will change db entry
 app.put("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
 {
+    if (!req.body.campground) throw new ExpressError(400, "No Campground sent in request body.");
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     if (!campground)
