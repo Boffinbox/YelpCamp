@@ -59,7 +59,12 @@ const verifyChicken = (req, res, next) =>
     }
 };
 
-// put and patch request handling
+// setting extended to true lets you nest
+// data in the request body, by using the
+// qs library. it lets you do nesting, like so:
+// campground[title] = 'tane'
+// this parses to:
+// object = { campground: { title: tane } }
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 // end middlewares
