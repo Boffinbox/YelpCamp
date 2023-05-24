@@ -59,6 +59,31 @@ const verifyChicken = (req, res, next) =>
     }
 };
 
+const validateCampground = (req, res, next) =>
+{
+    const campgroundSchema = Joi.object({
+        campground: Joi.object({
+            title: Joi.string().required(),
+            location: Joi.string().required(),
+            image: Joi.string().required(),
+            price: Joi.number().required().min(0),
+            description: Joi.string().required()
+        }).required()
+    });
+    const { error } = campgroundSchema.validate(req.body);
+    if (error)
+    {
+        const msg = error.details.map(el => el.message).join(',');
+        console.log("Campground validation failed");
+        throw new ExpressError(400, msg);
+    }
+    else
+    {
+        console.log("Campground validated successfully");
+        next();
+    }
+}
+
 // setting extended to true lets you nest
 // data in the request body, by using the
 // qs library. it lets you do nesting, like so:
@@ -90,22 +115,8 @@ app.get("/campgrounds/new", (req, res) =>
 });
 
 // actual create route - redirect to read page
-app.post("/campgrounds", tryCatchAsync(async (req, res, next) =>
+app.post("/campgrounds", validateCampground, tryCatchAsync(async (req, res, next) =>
 {
-    //if (!req.body.campground) throw new ExpressError(400, "No Campground sent in request body.");
-    const campgroundSchema = Joi.object({
-        campground: Joi.object({
-            title: Joi.string().required(),
-            price: Joi.number().required().min(0),
-        }).required()
-    });
-    const { error } = campgroundSchema.validate(req.body);
-    if (error)
-    {
-        const msg = error.details.map(el => el.message).join(',');
-        throw new ExpressError(400, msg);
-    }
-    console.log("tane!");
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`);
@@ -206,7 +217,7 @@ function handleValidationError(err)
 
 app.use((err, req, res, next) =>
 {
-    console.log(`Error Detected, with name: ${err.name}`);
+    console.log(`Error detected, with name: ${err.name}`);
     if (err.name === "ValidationError")
     {
         err = handleValidationError(err);
