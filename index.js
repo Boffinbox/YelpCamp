@@ -4,7 +4,7 @@ const path = require("path");
 const methodOverride = require("method-override");
 
 const ejsMate = require("ejs-mate");
-const Joi = require("joi");
+const { campgroundSchema } = require("./schemas.js");
 const ExpressError = require("./helpers/expresserror");
 const tryCatchAsync = require("./helpers/trycatchasync")
 
@@ -61,15 +61,6 @@ const verifyChicken = (req, res, next) =>
 
 const validateCampground = (req, res, next) =>
 {
-    const campgroundSchema = Joi.object({
-        campground: Joi.object({
-            title: Joi.string().required(),
-            location: Joi.string().required(),
-            image: Joi.string().required(),
-            price: Joi.number().required().min(0),
-            description: Joi.string().required()
-        }).required()
-    });
     const { error } = campgroundSchema.validate(req.body);
     if (error)
     {
@@ -147,7 +138,7 @@ app.get("/campgrounds/:id/edit", tryCatchAsync(async (req, res, next) =>
 }));
 
 // actual edit route, will change db entry
-app.put("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
+app.put("/campgrounds/:id", validateCampground, tryCatchAsync(async (req, res, next) =>
 {
     if (!req.body.campground) throw new ExpressError(400, "No Campground sent in request body.");
     const { id } = req.params;
