@@ -2,30 +2,31 @@
 <div class="row">
     <h1 class="text-center">New Campground</h1>
     <div class="col-6 offset-3">
-        <form action="/campgrounds" method="POST">
+        <form action="/campgrounds" method="POST" class="needs-validation" novalidate>
             <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
-                <input type="text" id="title" name="campground[title]" class="form-control">
+                <input type="text" id="title" name="campground[title]" class="form-control" required>
             </div>
             <div class="mb-3">
                 <label for="location" class="form-label">Location</label>
-                <input type="text" id="location" name="campground[location]" class="form-control">
+                <input type="text" id="location" name="campground[location]" class="form-control" required>
             </div>
             <div class="mb-3">
                 <label for="image" class="form-label">Image URL</label>
-                <input type="text" id="image" name="campground[image]" class="form-control">
+                <input type="text" id="image" name="campground[image]" class="form-control" required>
             </div>
             <div class="mb-3">
                 <label for="price" class="form-label">Price</label>
                 <div class="input-group">
                     <span class="input-group-text">£</span>
-                    <input type="text" id="price" name="campground[price]" class="form-control" placeholder="0.00">
+                    <input type="text" id="price" name="campground[price]" class="form-control" placeholder="0.00"
+                        required>
                 </div>
             </div>
             <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
                 <textarea id="description" name="campground[description]" class="form-control"
-                    placeholder="type here..."></textarea>
+                    placeholder="type here..." required></textarea>
             </div>
             <div class="mb-3">
                 <button class="btn btn-success">Add Campground</button>

@@ -2,8 +2,11 @@ const express = require("express");
 const path = require("path");
 // this one allows us to fake put and patch requests
 const methodOverride = require("method-override");
+
 const ejsMate = require("ejs-mate");
-const AppError = require("./apperror");
+const { campgroundSchema } = require("./schemas.js");
+const ExpressError = require("./helpers/expresserror");
+const tryCatchAsync = require("./helpers/trycatchasync")
 
 // start mongoose
 const mongoose = require("mongoose");
@@ -31,12 +34,15 @@ app.set("views", path.join(__dirname, "/views"));
 
 // middleware
 // morgan for logging
-const morgan = require("morgan");
-app.use(morgan("tiny"));
+// const morgan = require("morgan");
+// app.use(morgan("tiny"));
 app.use((req, res, next) =>
 {
     req.requestTime = Date.now();
-    console.log("Custom Log: ", req.method, req.path, req.requestTime);
+    // remember, you could just use morgan
+    // to do this for you!
+    console.log("Custom Log by Boff: ");
+    console.log(`HTTP Method: ${req.method}, Path: ${req.path}, Unix Time ms: ${req.requestTime}`);
     next();
 })
 // secret route protection through middleware
@@ -49,23 +55,35 @@ const verifyChicken = (req, res, next) =>
     }
     else
     {
-        throw new AppError(401, "Wrong Password! :(");
+        throw new ExpressError(401, "Wrong Password! :(");
     }
 };
 
-// put and patch request handling
+const validateCampground = (req, res, next) =>
+{
+    const { error } = campgroundSchema.validate(req.body);
+    if (error)
+    {
+        const msg = error.details.map(el => el.message).join(',');
+        console.log("Campground validation failed");
+        throw new ExpressError(400, msg);
+    }
+    else
+    {
+        console.log("Campground validated successfully");
+        next();
+    }
+}
+
+// setting extended to true lets you nest
+// data in the request body, by using the
+// qs library. it lets you do nesting, like so:
+// campground[title] = 'tane'
+// this parses to:
+// object = { campground: { title: tane } }
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 // end middlewares
-
-// utility functions
-function tryCatchAsync(fn)
-{
-    return function (req, res, next)
-    {
-        fn(req, res, next).catch((e) => next(e));
-    }
-}
 
 // start routes
 // default route
@@ -88,7 +106,7 @@ app.get("/campgrounds/new", (req, res) =>
 });
 
 // actual create route - redirect to read page
-app.post("/campgrounds", tryCatchAsync(async (req, res, next) =>
+app.post("/campgrounds", validateCampground, tryCatchAsync(async (req, res, next) =>
 {
     const campground = new Campground(req.body.campground);
     await campground.save();
@@ -102,7 +120,7 @@ app.get("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
     const campground = await Campground.findById(id);
     if (!campground)
     {
-        throw new AppError(404, `No campground found with id:${id} can be viewed`);
+        throw new ExpressError(404, `No campground found with id:${id} can be viewed`);
     }
     res.render("campgrounds/show", { campground });
 }));
@@ -114,19 +132,20 @@ app.get("/campgrounds/:id/edit", tryCatchAsync(async (req, res, next) =>
     const campground = await Campground.findById(id);
     if (!campground)
     {
-        throw new AppError(404, `No campground found with id:${id} is available to edit`);
+        throw new ExpressError(404, `No campground found with id:${id} is available to edit`);
     }
     res.render("campgrounds/edit", { campground });
 }));
 
 // actual edit route, will change db entry
-app.put("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
+app.put("/campgrounds/:id", validateCampground, tryCatchAsync(async (req, res, next) =>
 {
+    if (!req.body.campground) throw new ExpressError(400, "No Campground sent in request body.");
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     if (!campground)
     {
-        throw new AppError(404, `No campground found with id:${id} can be updated`);
+        throw new ExpressError(404, `No campground found with id:${id} can be updated`);
     }
     res.redirect(`/campgrounds/${id}`);
 }));
@@ -138,7 +157,7 @@ app.get("/campgrounds/:id/delete", tryCatchAsync(async (req, res, next) =>
     const campground = await Campground.findById(id);
     if (!campground)
     {
-        throw new AppError(404, `No campground found with id:${id} can be deleted`);
+        throw new ExpressError(404, `No campground found with id:${id} can be deleted`);
     }
     res.render("campgrounds/delete", { campground });
 }));
@@ -150,7 +169,7 @@ app.delete("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
     const campground = await Campground.findByIdAndDelete(id);
     if (!campground)
     {
-        throw new AppError(404, `No campground found with id:${id} exists to delete`);
+        throw new ExpressError(404, `No campground found with id:${id} exists to delete`);
     }
     res.render("campgrounds/deletesuccess", { campground });
 }));
@@ -162,21 +181,21 @@ app.get("/chicken", verifyChicken, (req, res) =>
 
 app.get("/admin", (req, res) =>
 {
-    throw new AppError(403, "You are not an admin!");
+    throw new ExpressError(403, "You are not an admin!");
 })
 
 // fake error route to intentionally cause an error
 app.get("/error", (req, res) =>
 {
-    throw new AppError(500, "Fake Internal Server Error");
+    throw new ExpressError(500, "Fake Internal Server Error");
 });
 
 // if none of your routes get matched,
 // we can send the user to this final route
 // this is the conventional 404 route
-app.use((req, res) =>
+app.use((req, res, next) =>
 {
-    throw new AppError(404, "File not found. :(");
+    next(new ExpressError(404, "File not found. :("));
 });
 
 // error handling comes next
@@ -184,12 +203,12 @@ app.use((req, res) =>
 function handleValidationError(err)
 {
     console.dir(err);
-    return new AppError(400, `Validation Failed: ${err.message}`);
+    return new ExpressError(400, `Validation Failed: ${err.message}`);
 }
 
 app.use((err, req, res, next) =>
 {
-    console.log(err.name);
+    console.log(`Error detected, with name: ${err.name}`);
     if (err.name === "ValidationError")
     {
         err = handleValidationError(err);
@@ -201,8 +220,9 @@ app.use((err, req, res, next) =>
 {
     // the default value here is in case the error
     // sent is a regular JS error, and not an AppError
-    const { status = 500, message = "Something went wrong." } = err;
-    res.status(status).send(`${status}: ${message}`);
+    if (!err.status) err.status = 500;
+    if (!err.message) err.message = "Something went wrong.";
+    res.status(err.status).render("error", { err });
 });
 
 app.listen(port, () =>
@@ -213,4 +233,3 @@ app.listen(port, () =>
 // campgrounds have:
 // a name/title, a price, a description
 // a location (just a string at this stage)
-// 
