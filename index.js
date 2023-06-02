@@ -188,6 +188,19 @@ app.post("/campgrounds/:id/reviews", tryCatchAsync(async (req, res) =>
     res.redirect(`/campgrounds/${campground._id}`);
 }));
 
+app.get("/resetreviews", tryCatchAsync(async (req, res) =>
+{
+    const allcamps = await Campground.find({});
+    for (let camp of allcamps)
+    {
+        camp.reviews = [];
+        await camp.save();
+        console.log(`"${camp.title}" reviews have been reset`);
+    }
+    await Review.deleteMany({});
+    res.send("All reviews deleted, campground reviews reset. Yayy!");
+}));
+
 // fake routes for learning purposes
 
 app.get("/chicken", verifyChicken, (req, res) =>
