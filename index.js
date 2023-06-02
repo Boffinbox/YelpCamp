@@ -11,6 +11,7 @@ const tryCatchAsync = require("./helpers/trycatchasync")
 // start mongoose
 const mongoose = require("mongoose");
 const Campground = require("./models/campground");
+const Review = require("./models/review");
 // hardcoded address for now, whilst i setup
 mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp')
     .then(() =>
@@ -173,6 +174,21 @@ app.delete("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
     }
     res.render("campgrounds/deletesuccess", { campground });
 }));
+
+// review routes
+
+app.post("/campgrounds/:id/reviews", tryCatchAsync(async (req, res) =>
+{
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    const review = new Review(req.body.review);
+    campground.reviews.push(review);
+    await review.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${campground._id}`);
+}));
+
+// fake routes for learning purposes
 
 app.get("/chicken", verifyChicken, (req, res) =>
 {
