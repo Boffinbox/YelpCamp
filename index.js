@@ -135,6 +135,8 @@ app.get("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
 {
     const { id } = req.params;
     const campground = await Campground.findById(id);
+    await campground.populate("reviews");
+    console.log(campground);
     if (!campground)
     {
         throw new ExpressError(404, `No campground found with id:${id} can be viewed`);
