@@ -44,6 +44,7 @@ app.use((req, res, next) =>
     // to do this for you!
     console.log("Custom Log by Boff: ");
     console.log(`HTTP Method: ${req.method}, Path: ${req.path}, Unix Time ms: ${req.requestTime}`);
+    // if you get an error related to "path: /123213123, this is something to do with the external images being pulled in, and not this code. :("
     next();
 })
 // secret route protection through middleware
