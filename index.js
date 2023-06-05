@@ -4,13 +4,14 @@ const path = require("path");
 const methodOverride = require("method-override");
 
 const ejsMate = require("ejs-mate");
-const { campgroundSchema } = require("./schemas.js");
+const { campgroundSchema, reviewSchema } = require("./schemas.js");
 const ExpressError = require("./helpers/expresserror");
 const tryCatchAsync = require("./helpers/trycatchasync")
 
 // start mongoose
 const mongoose = require("mongoose");
 const Campground = require("./models/campground");
+const Review = require("./models/review");
 // hardcoded address for now, whilst i setup
 mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp')
     .then(() =>
@@ -43,6 +44,7 @@ app.use((req, res, next) =>
     // to do this for you!
     console.log("Custom Log by Boff: ");
     console.log(`HTTP Method: ${req.method}, Path: ${req.path}, Unix Time ms: ${req.requestTime}`);
+    // if you get an error related to "path: /123213123, this is something to do with the external images being pulled in, and not this code. :("
     next();
 })
 // secret route protection through middleware
@@ -71,6 +73,22 @@ const validateCampground = (req, res, next) =>
     else
     {
         console.log("Campground validated successfully");
+        next();
+    }
+}
+
+const validateReview = (req, res, next) =>
+{
+    const { error } = reviewSchema.validate(req.body);
+    if (error)
+    {
+        const msg = error.details.map(el => el.message).join(',');
+        console.log("Review validation failed");
+        throw new ExpressError(400, msg);
+    }
+    else
+    {
+        console.log("Review validated successfully");
         next();
     }
 }
@@ -118,6 +136,8 @@ app.get("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
 {
     const { id } = req.params;
     const campground = await Campground.findById(id);
+    await campground.populate("reviews");
+    console.log(campground);
     if (!campground)
     {
         throw new ExpressError(404, `No campground found with id:${id} can be viewed`);
@@ -173,6 +193,42 @@ app.delete("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
     }
     res.render("campgrounds/deletesuccess", { campground });
 }));
+
+// review routes
+
+app.post("/campgrounds/:id/reviews", validateReview, tryCatchAsync(async (req, res) =>
+{
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    const review = new Review(req.body.review);
+    campground.reviews.push(review);
+    await review.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${campground._id}`);
+}));
+
+app.get("/resetreviews", tryCatchAsync(async (req, res) =>
+{
+    const allcamps = await Campground.find({});
+    for (let camp of allcamps)
+    {
+        camp.reviews = [];
+        await camp.save();
+        console.log(`"${camp.title}" reviews have been reset`);
+    }
+    await Review.deleteMany({});
+    res.send("All reviews deleted, campground reviews reset. Yayy!");
+}));
+
+app.delete("/campgrounds/:id/reviews/:reviewId", tryCatchAsync(async (req, res) =>
+{
+    const { id, reviewId } = req.params;
+    await Review.findByIdAndDelete(reviewId);
+    await Campground.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
+    res.redirect(`/campgrounds/${id}`);
+}));
+
+// fake routes for learning purposes
 
 app.get("/chicken", verifyChicken, (req, res) =>
 {
