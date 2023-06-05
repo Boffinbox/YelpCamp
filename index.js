@@ -219,6 +219,14 @@ app.get("/resetreviews", tryCatchAsync(async (req, res) =>
     res.send("All reviews deleted, campground reviews reset. Yayy!");
 }));
 
+app.delete("/campgrounds/:id/reviews/:reviewId", tryCatchAsync(async (req, res) =>
+{
+    const { id, reviewId } = req.params;
+    await Review.findByIdAndDelete(reviewId);
+    await Campground.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
+    res.redirect(`/campgrounds/${id}`);
+}));
+
 // fake routes for learning purposes
 
 app.get("/chicken", verifyChicken, (req, res) =>
