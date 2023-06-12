@@ -4,16 +4,19 @@ const path = require("path");
 const methodOverride = require("method-override");
 
 const ejsMate = require("ejs-mate");
-const { reviewSchema } = require("./schemas.js");
 const ExpressError = require("./helpers/expresserror");
-const tryCatchAsync = require("./helpers/trycatchasync")
 
 const campgrounds = require("./routes/campgrounds");
+const reviews = require("./routes/reviews");
+
+// comment these in if resetting reviews
+// const tryCatchAsync = require("./helpers/trycatchasync")
+// const Campground = require("./models/campground");
+// const Review = require("./models/review");
 
 // start mongoose
 const mongoose = require("mongoose");
-const Campground = require("./models/campground");
-const Review = require("./models/review");
+
 // hardcoded address for now, whilst i setup
 mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp')
     .then(() =>
@@ -63,22 +66,6 @@ const verifyChicken = (req, res, next) =>
     }
 };
 
-const validateReview = (req, res, next) =>
-{
-    const { error } = reviewSchema.validate(req.body);
-    if (error)
-    {
-        const msg = error.details.map(el => el.message).join(',');
-        console.log("Review validation failed");
-        throw new ExpressError(400, msg);
-    }
-    else
-    {
-        console.log("Review validated successfully");
-        next();
-    }
-}
-
 // setting extended to true lets you nest
 // data in the request body, by using the
 // qs library. it lets you do nesting, like so:
@@ -92,6 +79,7 @@ app.use(methodOverride("_method"));
 // start routes
 
 app.use("/campgrounds", campgrounds);
+app.use("/campgrounds/:id/reviews", reviews)
 
 // default route
 app.get("/", (req, res) =>
@@ -99,39 +87,19 @@ app.get("/", (req, res) =>
     res.render("home");
 });
 
-// review routes
-
-app.post("/campgrounds/:id/reviews", validateReview, tryCatchAsync(async (req, res) =>
-{
-    const { id } = req.params;
-    const campground = await Campground.findById(id);
-    const review = new Review(req.body.review);
-    campground.reviews.push(review);
-    await review.save();
-    await campground.save();
-    res.redirect(`/campgrounds/${campground._id}`);
-}));
-
-app.get("/resetreviews", tryCatchAsync(async (req, res) =>
-{
-    const allcamps = await Campground.find({});
-    for (let camp of allcamps)
-    {
-        camp.reviews = [];
-        await camp.save();
-        console.log(`"${camp.title}" reviews have been reset`);
-    }
-    await Review.deleteMany({});
-    res.send("All reviews deleted, campground reviews reset. Yayy!");
-}));
-
-app.delete("/campgrounds/:id/reviews/:reviewId", tryCatchAsync(async (req, res) =>
-{
-    const { id, reviewId } = req.params;
-    await Review.findByIdAndDelete(reviewId);
-    await Campground.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
-    res.redirect(`/campgrounds/${id}`);
-}));
+// remember to comment in the review and campground models
+// app.get("/resetreviews", tryCatchAsync(async (req, res) =>
+// {
+//     const allcamps = await Campground.find({});
+//     for (let camp of allcamps)
+//     {
+//         camp.reviews = [];
+//         await camp.save();
+//         console.log(`"${camp.title}" reviews have been reset`);
+//     }
+//     await Review.deleteMany({});
+//     res.send("All reviews deleted, campground reviews reset. Yayy!");
+// }));
 
 // fake routes for learning purposes
 
@@ -186,11 +154,9 @@ app.use((err, req, res, next) =>
     res.status(err.status).render("error", { err });
 });
 
+// lastly, serve the app
+
 app.listen(port, () =>
 {
     console.log(`Serving on port ${port}`)
 });
-
-// campgrounds have:
-// a name/title, a price, a description
-// a location (just a string at this stage)
