@@ -4,9 +4,11 @@ const path = require("path");
 const methodOverride = require("method-override");
 
 const ejsMate = require("ejs-mate");
-const { campgroundSchema, reviewSchema } = require("./schemas.js");
+const { reviewSchema } = require("./schemas.js");
 const ExpressError = require("./helpers/expresserror");
 const tryCatchAsync = require("./helpers/trycatchasync")
+
+const campgrounds = require("./routes/campgrounds");
 
 // start mongoose
 const mongoose = require("mongoose");
@@ -61,22 +63,6 @@ const verifyChicken = (req, res, next) =>
     }
 };
 
-const validateCampground = (req, res, next) =>
-{
-    const { error } = campgroundSchema.validate(req.body);
-    if (error)
-    {
-        const msg = error.details.map(el => el.message).join(',');
-        console.log("Campground validation failed");
-        throw new ExpressError(400, msg);
-    }
-    else
-    {
-        console.log("Campground validated successfully");
-        next();
-    }
-}
-
 const validateReview = (req, res, next) =>
 {
     const { error } = reviewSchema.validate(req.body);
@@ -104,95 +90,14 @@ app.use(methodOverride("_method"));
 // end middlewares
 
 // start routes
+
+app.use("/campgrounds", campgrounds);
+
 // default route
 app.get("/", (req, res) =>
 {
     res.render("home");
 });
-
-// show index route
-app.get("/campgrounds", tryCatchAsync(async (req, res, next) =>
-{
-    const campgrounds = await Campground.find({});
-    res.render("campgrounds/index", { campgrounds });
-}));
-
-// show create form
-app.get("/campgrounds/new", (req, res) =>
-{
-    res.render("campgrounds/new");
-});
-
-// actual create route - redirect to read page
-app.post("/campgrounds", validateCampground, tryCatchAsync(async (req, res, next) =>
-{
-    const campground = new Campground(req.body.campground);
-    await campground.save();
-    res.redirect(`/campgrounds/${campground._id}`);
-}));
-
-// show read route
-app.get("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
-{
-    const { id } = req.params;
-    const campground = await Campground.findById(id);
-    await campground.populate("reviews");
-    console.log(campground);
-    if (!campground)
-    {
-        throw new ExpressError(404, `No campground found with id:${id} can be viewed`);
-    }
-    res.render("campgrounds/show", { campground });
-}));
-
-// show edit route and form
-app.get("/campgrounds/:id/edit", tryCatchAsync(async (req, res, next) =>
-{
-    const { id } = req.params;
-    const campground = await Campground.findById(id);
-    if (!campground)
-    {
-        throw new ExpressError(404, `No campground found with id:${id} is available to edit`);
-    }
-    res.render("campgrounds/edit", { campground });
-}));
-
-// actual edit route, will change db entry
-app.put("/campgrounds/:id", validateCampground, tryCatchAsync(async (req, res, next) =>
-{
-    if (!req.body.campground) throw new ExpressError(400, "No Campground sent in request body.");
-    const { id } = req.params;
-    const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
-    if (!campground)
-    {
-        throw new ExpressError(404, `No campground found with id:${id} can be updated`);
-    }
-    res.redirect(`/campgrounds/${id}`);
-}));
-
-// show delete route
-app.get("/campgrounds/:id/delete", tryCatchAsync(async (req, res, next) =>
-{
-    const { id } = req.params;
-    const campground = await Campground.findById(id);
-    if (!campground)
-    {
-        throw new ExpressError(404, `No campground found with id:${id} can be deleted`);
-    }
-    res.render("campgrounds/delete", { campground });
-}));
-
-// actual delete route
-app.delete("/campgrounds/:id", tryCatchAsync(async (req, res, next) =>
-{
-    const { id } = req.params;
-    const campground = await Campground.findByIdAndDelete(id);
-    if (!campground)
-    {
-        throw new ExpressError(404, `No campground found with id:${id} exists to delete`);
-    }
-    res.render("campgrounds/deletesuccess", { campground });
-}));
 
 // review routes
 
