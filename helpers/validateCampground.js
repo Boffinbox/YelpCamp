@@ -1,5 +1,7 @@
 const { campgroundSchema } = require("../schemas.js");
 
+const ExpressError = require("../helpers/expresserror");
+
 const validateCampground = (req, res, next) =>
 {
     const { error } = campgroundSchema.validate(req.body);
