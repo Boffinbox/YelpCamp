@@ -2,8 +2,9 @@ const express = require("express");
 const path = require("path");
 // this one allows us to fake put and patch requests
 const methodOverride = require("method-override");
-
 const ejsMate = require("ejs-mate");
+const session = require("express-session");
+
 const ExpressError = require("./helpers/expresserror");
 
 const campgrounds = require("./routes/campgrounds");
@@ -75,6 +76,19 @@ const verifyChicken = (req, res, next) =>
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")))
+const sessionConfig =
+{
+    secret: "totallynotsecretatall",
+    resave: false,
+    saveUninitialized: true,
+    cookie:
+    {
+        httpOnly: true,
+        expires: Date.now() + (1000 * 60 * 60 * 24 * 7),
+        maxAge: (1000 * 60 * 60 * 24 * 7)
+    }
+}
+app.use(session(sessionConfig));
 // end middlewares
 
 // start routes
