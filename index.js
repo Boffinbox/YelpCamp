@@ -36,7 +36,7 @@ const port = 3000;
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 // __dirname is the absolute file location
-app.set("views", path.join(__dirname, "/views"));
+app.set("views", path.join(__dirname, "views"));
 
 // middleware
 // morgan for logging
@@ -74,6 +74,7 @@ const verifyChicken = (req, res, next) =>
 // object = { campground: { title: tane } }
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
+app.use(express.static(path.join(__dirname, "public")))
 // end middlewares
 
 // start routes
