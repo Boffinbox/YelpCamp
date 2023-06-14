@@ -65,6 +65,7 @@ router.put("/:id", validateCampground, tryCatchAsync(async (req, res, next) =>
     {
         throw new ExpressError(404, `No campground found with id:${id} can be updated`);
     }
+    req.flash("success", "Campground updated successfully.")
     res.redirect(`/campgrounds/${id}`);
 }));
 
@@ -89,7 +90,8 @@ router.delete("/:id", tryCatchAsync(async (req, res, next) =>
     {
         throw new ExpressError(404, `No campground found with id:${id} exists to delete`);
     }
-    res.render("campgrounds/deletesuccess", { campground });
+    req.flash("success", "Campground deleted successfully")
+    res.redirect("/campgrounds");
 }));
 
 module.exports = router;
