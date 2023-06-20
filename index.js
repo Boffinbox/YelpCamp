@@ -12,6 +12,7 @@ const ExpressError = require("./helpers/expresserror");
 
 const campgroundRoutes = require("./routes/campgrounds");
 const reviewRoutes = require("./routes/reviews");
+const userRoutes = require("./routes/users");
 
 // comment these in if resetting reviews
 // const tryCatchAsync = require("./helpers/trycatchasync")
@@ -126,6 +127,7 @@ app.get("/fakeUser", async (req, res) =>
     res.send(newUser);
 })
 
+app.use("/", userRoutes);
 app.use("/campgrounds", campgroundRoutes);
 app.use("/campgrounds/:id/reviews", reviewRoutes)
 
