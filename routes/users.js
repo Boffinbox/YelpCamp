@@ -11,7 +11,20 @@ router.get("/register", (req, res) =>
 
 router.post("/register", tryCatchAsync(async (req, res, next) =>
 {
-    res.send(req.body);
+    try
+    {
+        const { email, username, password } = req.body;
+        const user = new User({ email, username });
+        const registeredUser = await User.register(user, password);
+        console.log(registeredUser);
+        req.flash("success", `Welcome to Yelp Camp, ${username}`);
+        res.redirect("/campgrounds");
+    }
+    catch (error)
+    {
+        req.flash("error", error.message);
+        res.redirect("/register");
+    }
 }));
 
 module.exports = router;
