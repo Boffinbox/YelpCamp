@@ -5,6 +5,7 @@ const passport = require("passport");
 const tryCatchAsync = require("../helpers/trycatchasync")
 const User = require("../models/user");
 const isLoggedIn = require("../helpers/isLoggedIn");
+const storeReturnTo = require("../helpers/storeReturnTo");
 
 router.get("/register", (req, res) =>
 {
@@ -41,11 +42,13 @@ router.get("/login", (req, res) =>
     res.render("users/login")
 });
 
-router.post("/login", passport.authenticate("local", { failureFlash: true, failureRedirect: "/login" }), tryCatchAsync(async (req, res, next) =>
+router.post("/login", storeReturnTo, passport.authenticate("local", { failureFlash: true, failureRedirect: "/login" }), tryCatchAsync(async (req, res, next) =>
 {
     const { username } = req.body;
     req.flash("success", `Welcome back, ${username}`);
-    res.redirect("/campgrounds");
+    const urlToRedirectTo = res.locals.returnTo || "/campgrounds";
+    delete res.locals.returnTo;
+    res.redirect(urlToRedirectTo);
 }));
 
 router.get("/logout", isLoggedIn, (req, res, next) =>
