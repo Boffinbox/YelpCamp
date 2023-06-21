@@ -4,6 +4,7 @@ const router = express.Router();
 const ExpressError = require("../helpers/expresserror");
 const tryCatchAsync = require("../helpers/trycatchasync")
 const validateCampground = require("../helpers/validateCampground");
+const isLoggedIn = require("../helpers/isLoggedIn");
 
 const Campground = require("../models/campground");
 
@@ -15,13 +16,13 @@ router.get("/", tryCatchAsync(async (req, res, next) =>
 }));
 
 // show create form
-router.get("/new", (req, res) =>
+router.get("/new", isLoggedIn, (req, res) =>
 {
     res.render("campgrounds/new");
 });
 
 // actual create route - redirect to read page
-router.post("/", validateCampground, tryCatchAsync(async (req, res, next) =>
+router.post("/", isLoggedIn, validateCampground, tryCatchAsync(async (req, res, next) =>
 {
     const campground = new Campground(req.body.campground);
     await campground.save();
@@ -46,7 +47,7 @@ router.get("/:id", tryCatchAsync(async (req, res, next) =>
 }));
 
 // show edit route and form
-router.get("/:id/edit", tryCatchAsync(async (req, res, next) =>
+router.get("/:id/edit", isLoggedIn, tryCatchAsync(async (req, res, next) =>
 {
     const { id } = req.params;
     const campground = await Campground.findById(id);
@@ -60,7 +61,7 @@ router.get("/:id/edit", tryCatchAsync(async (req, res, next) =>
 }));
 
 // actual edit route, will change db entry
-router.put("/:id", validateCampground, tryCatchAsync(async (req, res, next) =>
+router.put("/:id", isLoggedIn, validateCampground, tryCatchAsync(async (req, res, next) =>
 {
     if (!req.body.campground) throw new ExpressError(400, "No Campground sent in request body.");
     const { id } = req.params;
@@ -74,7 +75,7 @@ router.put("/:id", validateCampground, tryCatchAsync(async (req, res, next) =>
 }));
 
 // show delete route
-router.get("/:id/delete", tryCatchAsync(async (req, res, next) =>
+router.get("/:id/delete", isLoggedIn, tryCatchAsync(async (req, res, next) =>
 {
     const { id } = req.params;
     const campground = await Campground.findById(id);
@@ -86,7 +87,7 @@ router.get("/:id/delete", tryCatchAsync(async (req, res, next) =>
 }));
 
 // actual delete route
-router.delete("/:id", tryCatchAsync(async (req, res, next) =>
+router.delete("/:id", isLoggedIn, tryCatchAsync(async (req, res, next) =>
 {
     const { id } = req.params;
     const campground = await Campground.findByIdAndDelete(id);
