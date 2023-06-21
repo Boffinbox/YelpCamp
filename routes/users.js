@@ -1,12 +1,13 @@
 const express = require("express");
 const router = express.Router();
+const passport = require("passport");
 
 const tryCatchAsync = require("../helpers/trycatchasync")
 const User = require("../models/user");
 
 router.get("/register", (req, res) =>
 {
-    res.render("users/register.ejs");
+    res.render("users/register");
 })
 
 router.post("/register", tryCatchAsync(async (req, res, next) =>
@@ -25,6 +26,18 @@ router.post("/register", tryCatchAsync(async (req, res, next) =>
         req.flash("error", error.message);
         res.redirect("/register");
     }
+}));
+
+router.get("/login", (req, res) =>
+{
+    res.render("users/login")
+});
+
+router.post("/login", passport.authenticate("local", { failureFlash: true, failureRedirect: "/login" }), tryCatchAsync(async (req, res, next) =>
+{
+    const { username } = req.body;
+    req.flash("success", `Welcome back, ${username}`);
+    res.redirect("/campgrounds");
 }));
 
 module.exports = router;
