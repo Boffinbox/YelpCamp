@@ -4,6 +4,7 @@ const passport = require("passport");
 
 const tryCatchAsync = require("../helpers/trycatchasync")
 const User = require("../models/user");
+const isLoggedIn = require("../helpers/isLoggedIn");
 
 router.get("/register", (req, res) =>
 {
@@ -18,8 +19,15 @@ router.post("/register", tryCatchAsync(async (req, res, next) =>
         const user = new User({ email, username });
         const registeredUser = await User.register(user, password);
         console.log(registeredUser);
-        req.flash("success", `Welcome to Yelp Camp, ${username}`);
-        res.redirect("/campgrounds");
+        req.login(registeredUser, (err) =>
+        {
+            if (err)
+            {
+                return next(err);
+            }
+            req.flash("success", `Welcome to Yelp Camp, ${username}`);
+            res.redirect("/campgrounds");
+        });
     }
     catch (error)
     {
@@ -40,7 +48,7 @@ router.post("/login", passport.authenticate("local", { failureFlash: true, failu
     res.redirect("/campgrounds");
 }));
 
-router.get("/logout", (req, res, next) =>
+router.get("/logout", isLoggedIn, (req, res, next) =>
 {
     const { username } = req.user;
     req.logout(function (err)
