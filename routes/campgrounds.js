@@ -25,6 +25,7 @@ router.get("/new", isLoggedIn, (req, res) =>
 router.post("/", isLoggedIn, validateCampground, tryCatchAsync(async (req, res, next) =>
 {
     const campground = new Campground(req.body.campground);
+    campground.author = await req.user._id;
     await campground.save();
     req.flash("success", "Successfully made a new campground!");
     res.redirect(`/campgrounds/${campground._id}`);
@@ -42,6 +43,7 @@ router.get("/:id", tryCatchAsync(async (req, res, next) =>
         //throw new ExpressError(404, `No campground found with id:${id} can be viewed`);
     }
     await campground.populate("reviews");
+    await campground.populate("author");
     console.log(campground);
     res.render("campgrounds/show", { campground });
 }));

@@ -10,6 +10,7 @@
             </div>
             <ul class="list-group"></ul>
             <div class="card-body">
+                <p class="card-text">Submitted by: <%= campground.author.username %></p>
                 <a class="btn btn-info" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
                 <a class="btn btn-danger    " href="/campgrounds/<%= campground._id %>/delete">Delete</a>
             </div>
