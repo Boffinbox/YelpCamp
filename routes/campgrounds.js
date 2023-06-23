@@ -43,7 +43,14 @@ router.get("/:id", tryCatchAsync(async (req, res, next) =>
         return res.redirect("/campgrounds");
         //throw new ExpressError(404, `No campground found with id:${id} can be viewed`);
     }
-    await campground.populate("reviews");
+    await campground.populate(
+        {
+            path: "reviews",
+            populate:
+            {
+                path: "author"
+            }
+        });
     await campground.populate("author");
     console.log(campground);
     res.render("campgrounds/show", { campground });
