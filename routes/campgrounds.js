@@ -2,9 +2,10 @@ const express = require("express");
 const router = express.Router();
 
 const ExpressError = require("../helpers/expresserror");
-const tryCatchAsync = require("../helpers/trycatchasync")
+const tryCatchAsync = require("../helpers/trycatchasync");
 const validateCampground = require("../helpers/validateCampground");
 const isLoggedIn = require("../helpers/isLoggedIn");
+const isAuthor = require("../helpers/isAuthor");
 
 const Campground = require("../models/campground");
 
@@ -25,6 +26,7 @@ router.get("/new", isLoggedIn, (req, res) =>
 router.post("/", isLoggedIn, validateCampground, tryCatchAsync(async (req, res, next) =>
 {
     const campground = new Campground(req.body.campground);
+    campground.author = await req.user._id;
     await campground.save();
     req.flash("success", "Successfully made a new campground!");
     res.redirect(`/campgrounds/${campground._id}`);
@@ -41,13 +43,21 @@ router.get("/:id", tryCatchAsync(async (req, res, next) =>
         return res.redirect("/campgrounds");
         //throw new ExpressError(404, `No campground found with id:${id} can be viewed`);
     }
-    await campground.populate("reviews");
+    await campground.populate(
+        {
+            path: "reviews",
+            populate:
+            {
+                path: "author"
+            }
+        });
+    await campground.populate("author");
     console.log(campground);
     res.render("campgrounds/show", { campground });
 }));
 
 // show edit route and form
-router.get("/:id/edit", isLoggedIn, tryCatchAsync(async (req, res, next) =>
+router.get("/:id/edit", isLoggedIn, isAuthor, tryCatchAsync(async (req, res, next) =>
 {
     const { id } = req.params;
     const campground = await Campground.findById(id);
@@ -61,7 +71,7 @@ router.get("/:id/edit", isLoggedIn, tryCatchAsync(async (req, res, next) =>
 }));
 
 // actual edit route, will change db entry
-router.put("/:id", isLoggedIn, validateCampground, tryCatchAsync(async (req, res, next) =>
+router.put("/:id", isLoggedIn, isAuthor, validateCampground, tryCatchAsync(async (req, res, next) =>
 {
     if (!req.body.campground) throw new ExpressError(400, "No Campground sent in request body.");
     const { id } = req.params;
@@ -75,7 +85,7 @@ router.put("/:id", isLoggedIn, validateCampground, tryCatchAsync(async (req, res
 }));
 
 // show delete route
-router.get("/:id/delete", isLoggedIn, tryCatchAsync(async (req, res, next) =>
+router.get("/:id/delete", isLoggedIn, isAuthor, tryCatchAsync(async (req, res, next) =>
 {
     const { id } = req.params;
     const campground = await Campground.findById(id);
@@ -87,7 +97,7 @@ router.get("/:id/delete", isLoggedIn, tryCatchAsync(async (req, res, next) =>
 }));
 
 // actual delete route
-router.delete("/:id", isLoggedIn, tryCatchAsync(async (req, res, next) =>
+router.delete("/:id", isLoggedIn, isAuthor, tryCatchAsync(async (req, res, next) =>
 {
     const { id } = req.params;
     const campground = await Campground.findByIdAndDelete(id);
