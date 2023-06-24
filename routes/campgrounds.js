@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const campgrounds = require("../controllers/campgrounds.js");
 
 const ExpressError = require("../helpers/expresserror");
 const tryCatchAsync = require("../helpers/trycatchasync");
@@ -10,27 +11,13 @@ const isAuthor = require("../helpers/isAuthor");
 const Campground = require("../models/campground");
 
 // show index route
-router.get("/", tryCatchAsync(async (req, res, next) =>
-{
-    const campgrounds = await Campground.find({});
-    res.render("campgrounds/index", { campgrounds });
-}));
+router.get("/", tryCatchAsync(campgrounds.index));
 
 // show create form
-router.get("/new", isLoggedIn, (req, res) =>
-{
-    res.render("campgrounds/new");
-});
+router.get("/new", isLoggedIn, campgrounds.renderNewForm);
 
 // actual create route - redirect to read page
-router.post("/", isLoggedIn, validateCampground, tryCatchAsync(async (req, res, next) =>
-{
-    const campground = new Campground(req.body.campground);
-    campground.author = await req.user._id;
-    await campground.save();
-    req.flash("success", "Successfully made a new campground!");
-    res.redirect(`/campgrounds/${campground._id}`);
-}));
+router.post("/", isLoggedIn, validateCampground, tryCatchAsync(campgrounds.createCampground));
 
 // show read route
 router.get("/:id", tryCatchAsync(async (req, res, next) =>
