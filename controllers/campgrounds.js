@@ -1,4 +1,5 @@
 const Campground = require("../models/campground");
+const ExpressError = require("../helpers/expresserror")
 
 module.exports.index = async (req, res) =>
 {
@@ -11,11 +12,80 @@ module.exports.renderNewForm = (req, res) =>
     res.render("campgrounds/new");
 }
 
-module.exports.createCampground = async (req, res, next) =>
+module.exports.createCampground = async (req, res) =>
 {
     const campground = new Campground(req.body.campground);
     campground.author = await req.user._id;
     await campground.save();
     req.flash("success", "Successfully made a new campground!");
     res.redirect(`/campgrounds/${campground._id}`);
+}
+
+module.exports.showCampground = async (req, res) =>
+{
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    if (!campground)
+    {
+        req.flash("error", "Cannot find that campground!");
+        return res.redirect("/campgrounds");
+    }
+    await campground.populate(
+        {
+            path: "reviews",
+            populate:
+            {
+                path: "author"
+            }
+        });
+    await campground.populate("author");
+    res.render("campgrounds/show", { campground });
+}
+
+module.exports.renderEditForm = async (req, res) =>
+{
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    if (!campground)
+    {
+        req.flash("error", "Cannot find that campground!");
+        return res.redirect("/campgrounds");
+    }
+    res.render("campgrounds/edit", { campground });
+}
+
+module.exports.updateCampground = async (req, res) =>
+{
+    if (!req.body.campground) throw new ExpressError(400, "No Campground sent in request body.");
+    const { id } = req.params;
+    const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+    if (!campground)
+    {
+        throw new ExpressError(404, `No campground found with id:${id} can be updated`);
+    }
+    req.flash("success", "Campground updated successfully.")
+    res.redirect(`/campgrounds/${id}`);
+}
+
+module.exports.renderDeleteForm = async (req, res) =>
+{
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    if (!campground)
+    {
+        throw new ExpressError(404, `No campground found with id:${id} can be deleted`);
+    }
+    res.render("campgrounds/delete", { campground });
+}
+
+module.exports.destroyCampground = async (req, res) =>
+{
+    const { id } = req.params;
+    const campground = await Campground.findByIdAndDelete(id);
+    if (!campground)
+    {
+        throw new ExpressError(404, `No campground found with id:${id} exists to delete`);
+    }
+    req.flash("success", "Campground deleted successfully")
+    res.redirect("/campgrounds");
 }

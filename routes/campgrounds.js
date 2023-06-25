@@ -20,80 +20,18 @@ router.get("/new", isLoggedIn, campgrounds.renderNewForm);
 router.post("/", isLoggedIn, validateCampground, tryCatchAsync(campgrounds.createCampground));
 
 // show read route
-router.get("/:id", tryCatchAsync(async (req, res, next) =>
-{
-    const { id } = req.params;
-    const campground = await Campground.findById(id);
-    if (!campground)
-    {
-        req.flash("error", "Cannot find that campground!");
-        return res.redirect("/campgrounds");
-        //throw new ExpressError(404, `No campground found with id:${id} can be viewed`);
-    }
-    await campground.populate(
-        {
-            path: "reviews",
-            populate:
-            {
-                path: "author"
-            }
-        });
-    await campground.populate("author");
-    console.log(campground);
-    res.render("campgrounds/show", { campground });
-}));
+router.get("/:id", tryCatchAsync(campgrounds.showCampground));
 
 // show edit route and form
-router.get("/:id/edit", isLoggedIn, isAuthor, tryCatchAsync(async (req, res, next) =>
-{
-    const { id } = req.params;
-    const campground = await Campground.findById(id);
-    if (!campground)
-    {
-        req.flash("error", "Cannot find that campground!");
-        return res.redirect("/campgrounds");
-        //throw new ExpressError(404, `No campground found with id:${id} is available to edit`);
-    }
-    res.render("campgrounds/edit", { campground });
-}));
+router.get("/:id/edit", isLoggedIn, isAuthor, tryCatchAsync(campgrounds.renderEditForm));
 
 // actual edit route, will change db entry
-router.put("/:id", isLoggedIn, isAuthor, validateCampground, tryCatchAsync(async (req, res, next) =>
-{
-    if (!req.body.campground) throw new ExpressError(400, "No Campground sent in request body.");
-    const { id } = req.params;
-    const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
-    if (!campground)
-    {
-        throw new ExpressError(404, `No campground found with id:${id} can be updated`);
-    }
-    req.flash("success", "Campground updated successfully.")
-    res.redirect(`/campgrounds/${id}`);
-}));
+router.put("/:id", isLoggedIn, isAuthor, validateCampground, tryCatchAsync(campgrounds.updateCampground));
 
 // show delete route
-router.get("/:id/delete", isLoggedIn, isAuthor, tryCatchAsync(async (req, res, next) =>
-{
-    const { id } = req.params;
-    const campground = await Campground.findById(id);
-    if (!campground)
-    {
-        throw new ExpressError(404, `No campground found with id:${id} can be deleted`);
-    }
-    res.render("campgrounds/delete", { campground });
-}));
+router.get("/:id/delete", isLoggedIn, isAuthor, tryCatchAsync(campgrounds.renderDeleteForm));
 
 // actual delete route
-router.delete("/:id", isLoggedIn, isAuthor, tryCatchAsync(async (req, res, next) =>
-{
-    const { id } = req.params;
-    const campground = await Campground.findByIdAndDelete(id);
-    if (!campground)
-    {
-        throw new ExpressError(404, `No campground found with id:${id} exists to delete`);
-    }
-    req.flash("success", "Campground deleted successfully")
-    res.redirect("/campgrounds");
-}));
+router.delete("/:id", isLoggedIn, isAuthor, tryCatchAsync(campgrounds.destroyCampground));
 
 module.exports = router;
