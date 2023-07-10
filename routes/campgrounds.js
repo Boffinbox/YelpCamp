@@ -2,13 +2,10 @@ const express = require("express");
 const router = express.Router();
 const campgrounds = require("../controllers/campgrounds.js");
 
-const ExpressError = require("../helpers/expresserror");
 const tryCatchAsync = require("../helpers/trycatchasync");
 const validateCampground = require("../helpers/validateCampground");
 const isLoggedIn = require("../helpers/isLoggedIn");
 const isAuthor = require("../helpers/isAuthor");
-
-const Campground = require("../models/campground");
 
 // show index route
 router.get("/", tryCatchAsync(campgrounds.index));
