@@ -1,4 +1,6 @@
 <% layout("layouts/boilerplate") %>
+<link rel="stylesheet" href="/stylesheets/stars.css">
+
 <div class="row">
     <div class="col-6">
         <div class="card mb-4">
@@ -43,14 +45,14 @@
         <% } else { %>
         <div>
             <% for( let i = (campground.reviews.length - 1); i >= 0; i-- ) { %>
-            <div class="card mb-3 ">
+            <div class="card mb-3">
                 <div class="card-body">
                     <h5 class="card-title">
-                        Rating: <%=campground.reviews[i].rating%>
+                        <%=campground.reviews[i].author.username%>
                     </h5>
-                    <h6 class="card-subtitle mb-2 text-body-secondary">
-                        By <%=campground.reviews[i].author.username%>
-                    </h6>
+                    <p class="starability-result" data-rating="<%=campground.reviews[i].rating%>">
+                        Rated: <%=campground.reviews[i].rating%>"> stars
+                    </p>
                     <p class="card-text">
                         <%=campground.reviews[i].body%>
                     </p>
