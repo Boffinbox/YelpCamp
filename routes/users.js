@@ -7,13 +7,13 @@ const tryCatchAsync = require("../helpers/trycatchasync")
 const isLoggedIn = require("../helpers/isLoggedIn");
 const storeReturnTo = require("../helpers/storeReturnTo");
 
-router.get("/register", users.renderRegister);
+router.route("/register")
+    .get(users.renderRegister)
+    .post(tryCatchAsync(users.register));
 
-router.post("/register", tryCatchAsync(users.register));
-
-router.get("/login", users.renderLogin);
-
-router.post("/login", storeReturnTo, passport.authenticate("local", { failureFlash: true, failureRedirect: "/login" }), tryCatchAsync(users.login));
+router.route("/login")
+    .get(users.renderLogin)
+    .post(storeReturnTo, passport.authenticate("local", { failureFlash: true, failureRedirect: "/login" }), tryCatchAsync(users.login));
 
 router.get("/logout", isLoggedIn, users.logout);
 

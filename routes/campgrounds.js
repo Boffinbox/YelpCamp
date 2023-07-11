@@ -7,28 +7,27 @@ const validateCampground = require("../helpers/validateCampground");
 const isLoggedIn = require("../helpers/isLoggedIn");
 const isAuthor = require("../helpers/isAuthor");
 
-// show index route
-router.get("/", tryCatchAsync(campgrounds.index));
+router.route("/")
+    // show index route
+    .get(tryCatchAsync(campgrounds.index))
+    // create route - redirects to read page
+    .post(isLoggedIn, validateCampground, tryCatchAsync(campgrounds.createCampground));
 
 // show create form
 router.get("/new", isLoggedIn, campgrounds.renderNewForm);
 
-// actual create route - redirect to read page
-router.post("/", isLoggedIn, validateCampground, tryCatchAsync(campgrounds.createCampground));
-
-// show read route
-router.get("/:id", tryCatchAsync(campgrounds.showCampground));
+router.route("/:id")
+    // show read route
+    .get(tryCatchAsync(campgrounds.showCampground))
+    // actual edit route, will change db entry
+    .put(isLoggedIn, isAuthor, validateCampground, tryCatchAsync(campgrounds.updateCampground))
+    // actual delete route
+    .delete(isLoggedIn, isAuthor, tryCatchAsync(campgrounds.destroyCampground));
 
 // show edit route and form
 router.get("/:id/edit", isLoggedIn, isAuthor, tryCatchAsync(campgrounds.renderEditForm));
 
-// actual edit route, will change db entry
-router.put("/:id", isLoggedIn, isAuthor, validateCampground, tryCatchAsync(campgrounds.updateCampground));
-
 // show delete route
 router.get("/:id/delete", isLoggedIn, isAuthor, tryCatchAsync(campgrounds.renderDeleteForm));
-
-// actual delete route
-router.delete("/:id", isLoggedIn, isAuthor, tryCatchAsync(campgrounds.destroyCampground));
 
 module.exports = router;
