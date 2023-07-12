@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const campgrounds = require("../controllers/campgrounds.js");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 
 const tryCatchAsync = require("../helpers/trycatchasync");
 const validateCampground = require("../helpers/validateCampground");
@@ -11,7 +13,12 @@ router.route("/")
     // show index route
     .get(tryCatchAsync(campgrounds.index))
     // create route - redirects to read page
-    .post(isLoggedIn, validateCampground, tryCatchAsync(campgrounds.createCampground));
+    //.post(isLoggedIn, validateCampground, tryCatchAsync(campgrounds.createCampground));
+    .post(upload.single("campground[image]"), (req, res) =>
+    {
+        console.log(req.body, req.file);
+        res.send("it worked!");
+    })
 
 // show create form
 router.get("/new", isLoggedIn, campgrounds.renderNewForm);
