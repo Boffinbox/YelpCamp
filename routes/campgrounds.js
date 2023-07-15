@@ -14,12 +14,7 @@ router.route("/")
     // show index route
     .get(tryCatchAsync(campgrounds.index))
     // create route - redirects to read page
-    //.post(isLoggedIn, validateCampground, tryCatchAsync(campgrounds.createCampground));
-    .post(upload.array("campground[image]"), (req, res) =>
-    {
-        console.log(req.body, req.files);
-        res.send("it worked!");
-    })
+    .post(isLoggedIn, upload.array("campground[image]"), validateCampground, tryCatchAsync(campgrounds.createCampground));
 
 // show create form
 router.get("/new", isLoggedIn, campgrounds.renderNewForm);
