@@ -23,7 +23,7 @@ router.route("/:id")
     // show read route
     .get(tryCatchAsync(campgrounds.showCampground))
     // actual edit route, will change db entry
-    .put(isLoggedIn, isAuthor, validateCampground, tryCatchAsync(campgrounds.updateCampground))
+    .put(isLoggedIn, isAuthor, upload.array("campground[image]"), validateCampground, tryCatchAsync(campgrounds.updateCampground))
     // actual delete route
     .delete(isLoggedIn, isAuthor, tryCatchAsync(campgrounds.destroyCampground));
 

@@ -59,7 +59,12 @@ module.exports.updateCampground = async (req, res) =>
 {
     if (!req.body.campground) throw new ExpressError(400, "No Campground sent in request body.");
     const { id } = req.params;
+    // ...add the text data first
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+    // ...then push the images onto the campground
+    const imgs = req.files.map(f => ({ url: f.path, filename: f.filename }))
+    campground.images.push(...imgs);
+    await campground.save();
     if (!campground)
     {
         throw new ExpressError(404, `No campground found with id:${id} can be updated`);
