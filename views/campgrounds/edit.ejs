@@ -38,7 +38,7 @@
             <div class="mb-3">
                 <% if (campground.images.length > 0) {%>
                 <% for (let i = 0; i < campground.images.length; i++) {%>
-                <img src="<%=campground.images[i].url%>" class="img-thumbnail">
+                <img src="<%=campground.images[i].thumbnail%>" class="img-thumbnail">
                 <div class="form-check-inline">
                     <label for="image-<%=i+1%>">Delete Image <%=i+1%>?</label>
                     <input type="checkbox" id="image-<%=i+1%>" name="deleteImages[]"
