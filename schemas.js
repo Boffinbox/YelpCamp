@@ -6,7 +6,8 @@ const campgroundSchema = Joi.object({
         // image: Joi.string().required(),
         price: Joi.number().required().min(0),
         description: Joi.string().required()
-    }).required()
+    }).required(),
+    deleteImages: Joi.array()
 });
 
 module.exports.campgroundSchema = campgroundSchema;

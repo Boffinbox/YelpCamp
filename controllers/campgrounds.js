@@ -1,5 +1,6 @@
 const Campground = require("../models/campground");
 const ExpressError = require("../helpers/expresserror")
+const { cloudinary } = require("../cloudinary");
 
 module.exports.index = async (req, res) =>
 {
@@ -64,6 +65,15 @@ module.exports.updateCampground = async (req, res) =>
     // ...then push the images onto the campground
     const imgs = req.files.map(f => ({ url: f.path, filename: f.filename }))
     campground.images.push(...imgs);
+    if (req.body.deleteImages)
+    {
+        for (let filename of req.body.deleteImages)
+        {
+            await cloudinary.uploader.destroy(filename);
+        }
+        // this one's a doozy
+        await campground.updateOne({ $pull: { images: { filename: { $in: req.body.deleteImages } } } })
+    }
     await campground.save();
     if (!campground)
     {

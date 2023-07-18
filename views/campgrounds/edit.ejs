@@ -36,6 +36,18 @@
                     placeholder="type here..." required><%= campground.description %></textarea>
             </div>
             <div class="mb-3">
+                <% if (campground.images.length > 0) {%>
+                <% for (let i = 0; i < campground.images.length; i++) {%>
+                <img src="<%=campground.images[i].url%>" class="img-thumbnail">
+                <div class="form-check-inline">
+                    <label for="image-<%=i+1%>">Delete Image <%=i+1%>?</label>
+                    <input type="checkbox" id="image-<%=i+1%>" name="deleteImages[]"
+                        value="<%=campground.images[i].filename%>">
+                </div>
+                <% } %>
+                <% } %>
+            </div>
+            <div class="mb-3">
                 <button class="btn btn-info">Update Campground</button>
             </div>
         </form>
