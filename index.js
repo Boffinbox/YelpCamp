@@ -1,3 +1,8 @@
+if (process.env.NODE_ENV !== "production")
+{
+    require("dotenv").config();
+}
+
 const express = require("express");
 const path = require("path");
 // this one allows us to fake put and patch requests
@@ -54,8 +59,7 @@ app.use((req, res, next) =>
     req.requestTime = Date.now();
     // remember, you could just use morgan
     // to do this for you!
-    console.log("Custom Log by Boff: ");
-    console.log(`HTTP Method: ${req.method}, Path: ${req.path}, Unix Time ms: ${req.requestTime}`);
+    console.log("Custom Log by Boff: " + `${req.method} "${req.path}" at ${req.requestTime} ms`);
     // if you get an error related to "path: /123213123, this is something to do with the external images being pulled in, and not this code. :("
     next();
 })

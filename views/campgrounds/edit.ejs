@@ -5,7 +5,8 @@
         <div>
             Campground ID: <%= campground._id %>
         </div>
-        <form action="/campgrounds/<%= campground._id %>?_method=PUT" method="POST" class="needs-validation" novalidate>
+        <form action="/campgrounds/<%= campground._id %>?_method=PUT" method="POST" class="needs-validation"
+            enctype="multipart/form-data" novalidate>
             <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
                 <input type="text" id="title" name="campground[title]" class="form-control"
@@ -17,9 +18,9 @@
                     value="<%= campground.location %>" required>
             </div>
             <div class="mb-3">
-                <label for="image" class="form-label">Image URL</label>
-                <input type="text" id="image" name="campground[image]" class="form-control"
-                    value="<%= campground.image %>" required>
+                <label for="image" class="form-label">Upload Image</label>
+                <input type="file" class="form-control" id="image" name="campground[image]" multiple>
+                <div class="form-text">Allowed filetypes: jpeg, jpg, png</div>
             </div>
             <div class="mb-3">
                 <label for="price" class="form-label">Price</label>
@@ -35,6 +36,18 @@
                     placeholder="type here..." required><%= campground.description %></textarea>
             </div>
             <div class="mb-3">
+                <% if (campground.images.length > 0) {%>
+                <% for (let i = 0; i < campground.images.length; i++) {%>
+                <img src="<%=campground.images[i].thumbnail%>" class="img-thumbnail">
+                <div class="form-check-inline">
+                    <label for="image-<%=i+1%>">Delete Image <%=i+1%>?</label>
+                    <input type="checkbox" id="image-<%=i+1%>" name="deleteImages[]"
+                        value="<%=campground.images[i].filename%>">
+                </div>
+                <% } %>
+                <% } %>
+            </div>
+            <div class="mb-3">
                 <button class="btn btn-info">Update Campground</button>
             </div>
         </form>
@@ -43,3 +56,4 @@
         </div>
     </div>
 </div>
+<script src="/js/bootstrapFormValidator.js"></script>

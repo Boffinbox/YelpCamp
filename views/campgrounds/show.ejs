@@ -1,8 +1,39 @@
 <% layout("layouts/boilerplate") %>
+<link rel="stylesheet" href="/stylesheets/stars.css">
+<link rel="stylesheet" href="/stylesheets/carouselheight.css">
+
 <div class="row">
     <div class="col-6">
         <div class="card mb-4">
-            <img src="<%= campground.image %>" class="card-img-top" alt="...">
+            <div id="campgroundCarousel" class="carousel slide">
+                <div class="carousel-inner">
+                    <% for (let i = 0; i < campground.images.length; i++) {%>
+                    <div class="carousel-item <%= i === 0 ? 'active' : ''%>">
+                        <img src="<%= campground.images[i].url %>" class="d-block w-100" alt="">
+                    </div>
+                    <% } %>
+                </div>
+                <% if (campground.images.length > 1) {%>
+                <button class="carousel-control-prev" type="button" data-bs-target="#campgroundCarousel"
+                    data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#campgroundCarousel"
+                    data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#campgroundCarousel" data-bs-slide-to="0" class="active"
+                        aria-current="true" aria-label="Slide 1"></button>
+                    <button type="button" data-bs-target="#campgroundCarousel" data-bs-slide-to="1"
+                        aria-label="Slide 2"></button>
+                    <button type="button" data-bs-target="#campgroundCarousel" data-bs-slide-to="2"
+                        aria-label="Slide 3"></button>
+                </div>
+                <% } %>
+            </div>
             <div class="card-body">
                 <h5 class="card-title"><%= campground.title %>, <%= campground.location %></h5>
                 <p class="card-text"><%= campground.description %></p>
@@ -22,11 +53,23 @@
     </div>
     <div class="col-6">
         <% if (currentUser) { %>
-        <h2>Leave a Review</h2>
+        <h2 class="mb-4">Leave a Review</h2>
         <form action="/campgrounds/<%=campground._id%>/reviews" method="POST" class="mb-3 needs-validation" novalidate>
-            <div class="mb-3">
-                <label class="form-label" for="rating">Rating</label>
-                <input class="form-range" type="range" min="1" max="5" name="review[rating]" id="rating">
+            <div class="">
+                <fieldset class="starability-checkmark">
+                    <input type="radio" id="first-rate0" class="input-no-rate" name="review[rating]" value="0" checked
+                        aria-label="No rating." />
+                    <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+                    <label for="first-rate1" title="Terrible">1 star</label>
+                    <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                    <label for="first-rate2" title="Not good">2 stars</label>
+                    <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                    <label for="first-rate3" title="Average">3 stars</label>
+                    <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                    <label for="first-rate4" title="Very good">4 stars</label>
+                    <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                    <label for="first-rate5" title="Amazing">5 stars</label>
+                </fieldset>
             </div>
             <div class="mb-3">
                 <label for="body" class="form-label">Review</label>
@@ -43,14 +86,14 @@
         <% } else { %>
         <div>
             <% for( let i = (campground.reviews.length - 1); i >= 0; i-- ) { %>
-            <div class="card mb-3 ">
+            <div class="card mb-3">
                 <div class="card-body">
                     <h5 class="card-title">
-                        Rating: <%=campground.reviews[i].rating%>
+                        <%=campground.reviews[i].author.username%>
                     </h5>
-                    <h6 class="card-subtitle mb-2 text-body-secondary">
-                        By <%=campground.reviews[i].author.username%>
-                    </h6>
+                    <p class="starability-result" data-rating="<%=campground.reviews[i].rating%>">
+                        Rated: <%=campground.reviews[i].rating%>"> stars
+                    </p>
                     <p class="card-text">
                         <%=campground.reviews[i].body%>
                     </p>
