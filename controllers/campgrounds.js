@@ -26,8 +26,20 @@ module.exports.createCampground = async (req, res) =>
             limit: 1
         }
     ).send();
+    console.log(geoData);
     const campground = new Campground(req.body.campground);
-    campground.geometry = geoData.body.features[0].geometry;
+    if (geoData.body.features.length === 0)
+    {
+        campground.geometry =
+        {
+            type: "Point",
+            coordinates: [0.000000, 0.000000]
+        }
+    }
+    else
+    {
+        campground.geometry = geoData.body.features[0].geometry;
+    }
     campground.images = req.files.map(f => ({ url: f.path, filename: f.filename }));
     campground.author = await req.user._id;
     await campground.save();
