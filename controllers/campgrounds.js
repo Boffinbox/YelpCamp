@@ -20,26 +20,9 @@ module.exports.renderNewForm = (req, res) =>
 
 module.exports.createCampground = async (req, res) =>
 {
-    const geoData = await geocoder.forwardGeocode(
-        {
-            query: req.body.campground.location,
-            limit: 1
-        }
-    ).send();
-    console.log(geoData);
     const campground = new Campground(req.body.campground);
-    if (geoData.body.features.length === 0)
-    {
-        campground.geometry =
-        {
-            type: "Point",
-            coordinates: [0.000000, 0.000000]
-        }
-    }
-    else
-    {
-        campground.geometry = geoData.body.features[0].geometry;
-    }
+    const geoData = await getGeoData(campground.location)
+    campground.geometry = getGeometry(geoData);
     campground.images = req.files.map(f => ({ url: f.path, filename: f.filename }));
     campground.author = await req.user._id;
     await campground.save();
@@ -129,4 +112,34 @@ module.exports.destroyCampground = async (req, res) =>
     }
     req.flash("success", "Campground deleted successfully")
     res.redirect("/campgrounds");
+}
+
+// location should be a simple string,
+// such as "spain" or "kraków, poland"
+async function getGeoData(location)
+{
+    const geoData = await geocoder.forwardGeocode(
+        {
+            query: location,
+            limit: 1
+        }
+    ).send();
+    return geoData
+}
+
+// returns a geometry, and if geoData didn't
+// get a result, returns a 0,0 point
+function getGeometry(geoData)
+{
+    if (geoData.body.features.length === 0)
+    {
+        return {
+            type: "Point",
+            coordinates: [0.000000, 0.000000]
+        }
+    }
+    else
+    {
+        return geoData.body.features[0].geometry;
+    }
 }
