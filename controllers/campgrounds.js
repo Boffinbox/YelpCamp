@@ -68,9 +68,21 @@ module.exports.updateCampground = async (req, res) =>
 {
     if (!req.body.campground) throw new ExpressError(400, "No Campground sent in request body.");
     const { id } = req.params;
-    // ...add the text data first
-    const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
-    // ...then push the images onto the campground
+    // find the correct camp
+    const campground = await Campground.findById(id);
+    if (!campground)
+    {
+        throw new ExpressError(404, `No campground found with id:${id} can be updated`);
+    }
+    const origLocation = campground.location;
+    // add the text data first
+    Object.assign(campground, req.body.campground);
+    if (campground.location !== origLocation)
+    {
+        const geoData = await getGeoData(campground.location);
+        campground.geometry = getGeometry(geoData);
+    }
+    // then push the images onto the campground
     const imgs = req.files.map(f => ({ url: f.path, filename: f.filename }))
     campground.images.push(...imgs);
     if (req.body.deleteImages)
@@ -83,10 +95,6 @@ module.exports.updateCampground = async (req, res) =>
         await campground.updateOne({ $pull: { images: { filename: { $in: req.body.deleteImages } } } })
     }
     await campground.save();
-    if (!campground)
-    {
-        throw new ExpressError(404, `No campground found with id:${id} can be updated`);
-    }
     req.flash("success", "Campground updated successfully.")
     res.redirect(`/campgrounds/${id}`);
 }
@@ -124,6 +132,7 @@ async function getGeoData(location)
             limit: 1
         }
     ).send();
+    console.log("Mapbox Forward Geocode has been called once.");
     return geoData
 }
 
