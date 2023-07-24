@@ -8,6 +8,7 @@ module.exports.index = async (req, res) =>
 {
     const campgrounds = await Campground.find({});
     res.render("campgrounds/index", { campgrounds });
+    console.log("Mapbox Map Load for Web has been called once.");
 }
 
 module.exports.renderNewForm = (req, res) =>
@@ -47,6 +48,7 @@ module.exports.showCampground = async (req, res) =>
         });
     await campground.populate("author");
     res.render("campgrounds/show", { campground });
+    console.log("Mapbox Map Load for Web has been called once.");
 }
 
 module.exports.renderEditForm = async (req, res) =>
