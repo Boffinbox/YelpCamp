@@ -26,6 +26,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp')
 // more than american states. sorry colt :(
 const countries = require("./countries");
 const { descriptors, places } = require("./campNames");
+const europe = require("./europeLatLongs");
 
 const geo = require("../helpers/geometry");
 
@@ -33,29 +34,32 @@ const seedDB = async () =>
 {
     // break glass in event of total failure
     // //await Campground.deleteMany({});
-    for (let i = 0; i < 3; i++)
+    for (let i = 0; i < 1; i++)
     {
         // math floor because of zero index array
         const price = Math.ceil(Math.random() * 25) + 10;
-        const c = new Campground({
-            title: `${randomFromArray(descriptors)} ${randomFromArray(places)}`,
-            price: price,
-            description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum, soluta! Eos maxime dolorum aut perspiciatis veniam ratione vitae eum. Dignissimos tenetur culpa, autem fugiat debitis alias eos veritatis molestiae animi!",
-            images: [
-                {
-                    url: "https://res.cloudinary.com/dejzcp0js/image/upload/v1689778828/YelpCamp/afoixxczbteeubvz6myn.jpg",
-                    filename: 'YelpCamp/afoixxczbteeubvz6myn'
-                }
-            ],
-            reviews: [],
-            author: "6491f01ad5a77a2dd1c8ab80"
-        });
-        c.location = `${randomFromArray(countries)}`;
-        const geoData = await geo.getGeoData(c.location);
-        c.geometry = geo.getGeometry(geoData);
-        await c.save();
-        await console.log(`camp site ${i + 1} "saved"`);
+        const chosenPlace = randomFromArray(europe);
+        console.log(chosenPlace);
+        // assign property values
+        const c = new Campground()
+        c.title = `${randomFromArray(descriptors)} ${randomFromArray(places)}`;
+        c.price = price;
+        c.description = "Lorem ipsum dolor sit amet consectetur adipisicing elit.";
+        c.images = [
+            {
+                url: "https://res.cloudinary.com/dejzcp0js/image/upload/v1689778828/YelpCamp/afoixxczbteeubvz6myn.jpg",
+                filename: 'YelpCamp/afoixxczbteeubvz6myn'
+            }
+        ];
+        c.reviews = [];
+        c.author = "6491f01ad5a77a2dd1c8ab80";
+        c.location = getLocationString(chosenPlace);
+        c.geometry = geo.getGeometry(chosenPlace.latitude, chosenPlace.longitude);
+        // finally, save data to mongo
+        // await c.save();
+        await console.log(`Camp site ${i + 1}, ${c.title}, has been saved to DB.`);
     }
+
     // once done seeding, close and finish up
     mongoose.connection.close();
 }
@@ -66,4 +70,16 @@ function randomFromArray(chosenArray)
 {
     const randSelected = Math.floor(Math.random() * chosenArray.length);
     return chosenArray[randSelected];
+}
+
+function getLocationString(place)
+{
+    let locationString = "";
+    locationString += place.name;
+    if (place.subdivision)
+    {
+        locationString += `, ${place.subdivision}`;
+    }
+    locationString += `, ${place.state}`;
+    return locationString;
 }
