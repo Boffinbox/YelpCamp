@@ -24,7 +24,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp')
 
 // using european countries because i know these
 // more than american states. sorry colt :(
-const countries = require("./countries");
 const { descriptors, places } = require("./campNames");
 const europe = require("./europeLatLongs");
 
