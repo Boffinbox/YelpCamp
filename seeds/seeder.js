@@ -44,12 +44,7 @@ const seedDB = async () =>
         c.title = `${randomFromArray(descriptors)} ${randomFromArray(places)}`;
         c.price = price;
         c.description = "Lorem ipsum dolor sit amet consectetur adipisicing elit.";
-        c.images = [
-            {
-                url: "https://res.cloudinary.com/dejzcp0js/image/upload/v1689778828/YelpCamp/afoixxczbteeubvz6myn.jpg",
-                filename: 'YelpCamp/afoixxczbteeubvz6myn'
-            }
-        ];
+        c.images = [];
         c.reviews = [];
         c.author = "6491f01ad5a77a2dd1c8ab80";
         c.location = getLocationString(chosenPlace);
