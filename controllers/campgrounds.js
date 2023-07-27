@@ -1,12 +1,21 @@
 const Campground = require("../models/campground");
-const ExpressError = require("../helpers/expresserror")
-const geo = require("../helpers/geometry")
+const ExpressError = require("../helpers/expresserror");
+const geo = require("../helpers/geometry");
+const randomFromArray = require("../helpers/randomFromArray");
+const demoImages = require("../helpers/demoImages");
 
 const { cloudinary } = require("../cloudinary");
 
 module.exports.index = async (req, res) =>
 {
     const campgrounds = await Campground.find({});
+    for (let campground of campgrounds)
+    {
+        if (campground.images.length <= 0)
+        {
+            campground.images.push(randomFromArray(demoImages));
+        }
+    }
     res.render("campgrounds/index", { campgrounds });
     console.log("Mapbox Map Load for Web has been called once.");
 }
@@ -47,6 +56,13 @@ module.exports.showCampground = async (req, res) =>
             }
         });
     await campground.populate("author");
+    if (campground.images.length <= 0)
+    {
+        for (let i = 0; i < 5; i++)
+        {
+            campground.images.push(randomFromArray(demoImages));
+        }
+    }
     res.render("campgrounds/show", { campground });
     console.log("Mapbox Map Load for Web has been called once.");
 }
