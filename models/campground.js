@@ -55,7 +55,7 @@ campgroundSchema.virtual("properties.popUpMarkup").get(function ()
     return `
     <div style="text-align: center">
     <h5>${this.title}</h5>
-    <p>${this.description.substring(0, 75)}...</p>
+    <p>${this.description.substring(0, 72)}...</p>
     <p><img src="${this.images[0].thumbnail}"></p>
     <div><a href="/campgrounds/${this._id}">View Campground</div>
     </div>`;
