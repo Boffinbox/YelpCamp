@@ -19,6 +19,23 @@ router.route("/")
 // show create form
 router.get("/new", isLoggedIn, campgrounds.renderNewForm);
 
+// const Campground = require("../models/campground.js");
+// router.get("/updatecampmanually", async (req, res) =>
+// {
+//     const allcamps = await Campground.find({ geometry: { $exists: false } });
+//     for (let camp of allcamps)
+//     {
+//         camp.geometry =
+//         {
+//             type: "Point",
+//             coordinates: [0.000000, 0.000000]
+//         }
+//         // await camp.save(); // be careful!
+//         console.log(`"${camp.title}" geometry set to "${camp.geometry}"`);
+//     }
+//     res.send("geo set to defaults");
+// })
+
 router.route("/:id")
     // show read route
     .get(tryCatchAsync(campgrounds.showCampground))

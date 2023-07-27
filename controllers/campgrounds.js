@@ -1,11 +1,23 @@
 const Campground = require("../models/campground");
-const ExpressError = require("../helpers/expresserror")
+const ExpressError = require("../helpers/expresserror");
+const geo = require("../helpers/geometry");
+const randomFromArray = require("../helpers/randomFromArray");
+const demoImages = require("../helpers/demoImages");
+
 const { cloudinary } = require("../cloudinary");
 
 module.exports.index = async (req, res) =>
 {
     const campgrounds = await Campground.find({});
+    for (let campground of campgrounds)
+    {
+        if (campground.images.length <= 0)
+        {
+            campground.images.push(randomFromArray(demoImages));
+        }
+    }
     res.render("campgrounds/index", { campgrounds });
+    console.log("Mapbox Map Load for Web has been called once.");
 }
 
 module.exports.renderNewForm = (req, res) =>
@@ -16,9 +28,12 @@ module.exports.renderNewForm = (req, res) =>
 module.exports.createCampground = async (req, res) =>
 {
     const campground = new Campground(req.body.campground);
+    const geoData = await geo.getGeoData(campground.location)
+    campground.geometry = geo.getGeometry(geoData);
     campground.images = req.files.map(f => ({ url: f.path, filename: f.filename }));
     campground.author = await req.user._id;
     await campground.save();
+    console.log(campground);
     req.flash("success", "Successfully made a new campground!");
     res.redirect(`/campgrounds/${campground._id}`);
 }
@@ -41,7 +56,15 @@ module.exports.showCampground = async (req, res) =>
             }
         });
     await campground.populate("author");
+    if (campground.images.length <= 0)
+    {
+        for (let i = 0; i < 5; i++)
+        {
+            campground.images.push(randomFromArray(demoImages));
+        }
+    }
     res.render("campgrounds/show", { campground });
+    console.log("Mapbox Map Load for Web has been called once.");
 }
 
 module.exports.renderEditForm = async (req, res) =>
@@ -60,9 +83,21 @@ module.exports.updateCampground = async (req, res) =>
 {
     if (!req.body.campground) throw new ExpressError(400, "No Campground sent in request body.");
     const { id } = req.params;
-    // ...add the text data first
-    const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
-    // ...then push the images onto the campground
+    // find the correct camp
+    const campground = await Campground.findById(id);
+    if (!campground)
+    {
+        throw new ExpressError(404, `No campground found with id:${id} can be updated`);
+    }
+    const origLocation = campground.location;
+    // add the text data first
+    Object.assign(campground, req.body.campground);
+    if (campground.location !== origLocation)
+    {
+        const geoData = await geo.getGeoData(campground.location);
+        campground.geometry = geo.getGeometry(geoData);
+    }
+    // then push the images onto the campground
     const imgs = req.files.map(f => ({ url: f.path, filename: f.filename }))
     campground.images.push(...imgs);
     if (req.body.deleteImages)
@@ -75,10 +110,6 @@ module.exports.updateCampground = async (req, res) =>
         await campground.updateOne({ $pull: { images: { filename: { $in: req.body.deleteImages } } } })
     }
     await campground.save();
-    if (!campground)
-    {
-        throw new ExpressError(404, `No campground found with id:${id} can be updated`);
-    }
     req.flash("success", "Campground updated successfully.")
     res.redirect(`/campgrounds/${id}`);
 }

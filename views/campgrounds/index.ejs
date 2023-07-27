@@ -1,25 +1,36 @@
 <% layout("layouts/boilerplate") %>
-<h1>All Campgrounds</h1>
+<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css'/>
+<div id="map" style="width: 100%; height: 600px">
+</div>
+<h1 class="my-4 text-center">Full Campgrounds Index</h1>
 <% for( let campground of campgrounds) { %>
 <div class="card">
     <div class="row" style="height: 180px">
         <div class="col-md-4">
-            <img class="mw-100 mh-auto p-3" src="<% if (campground.images.length > 0) {%><%=campground.images[0].thumbnail%><%}%>"
-                alt="">
+            <img class="mw-100 mh-auto p-3" src="<% if (campground.images.length > 0) {%><%=campground.images[0].thumbnail%><%}%>" alt="">
         </div>
         <div class="col-md-8">
             <div class="card-body">
                 <h5 class="card-title">
-                    <%= campground.title %>, <%= campground.location %>
+                    <%=campground.title%>, <%=campground.location%>
                 </h5>
-                <p class=" card-text">
-            <%= campground.description %>
-            </p>
-            <p class="card-text">
-                <a href="/campgrounds/<%= campground._id %>">View Campground</a>
-            </p>
+                <p class="card-text">
+                    <%=campground.description%>
+                </p>
+                <p class="card-text">
+                    <a href="/campgrounds/<%= campground._id %>">View Campground</a>
+                </p>
+            </div>
         </div>
     </div>
 </div>
-</div>
 <% } %>
+
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+
+<script>
+    const mapToken = "<%-process.env.MAPBOX_TOKEN%>";
+    const campgrounds = {features: <%-JSON.stringify(campgrounds)%>};
+</script>
+
+<script src="/js/clusterMap.js"></script>
