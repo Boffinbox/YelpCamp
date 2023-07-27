@@ -28,6 +28,7 @@ const { descriptors, places } = require("./campNames");
 const europe = require("./europeLatLongs");
 
 const geo = require("../helpers/geometry");
+const randomFromArray = require("../helpers/randomFromArray");
 
 const seedDB = async () =>
 {
@@ -59,12 +60,6 @@ const seedDB = async () =>
 }
 
 seedDB();
-
-function randomFromArray(chosenArray)
-{
-    const randSelected = Math.floor(Math.random() * chosenArray.length);
-    return chosenArray[randSelected];
-}
 
 function getLocationString(place)
 {
