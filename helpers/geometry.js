@@ -34,9 +34,9 @@ function getGeometry(geoData)
     }
 }
 
-function getGeometry(latitude, longitude)
+function convertLatLongToLongLat(latitude, longitude)
 {
-    console.log(`Should return [${longitude}°E/W, ${latitude}°N/S]...`);
+    console.log(`Should return [${longitude}°E/W, ${latitude}°N/S], as a geometry`);
     return {
         type: "Point",
         coordinates: [longitude, latitude]
@@ -46,5 +46,6 @@ function getGeometry(latitude, longitude)
 module.exports =
 {
     getGeoData,
-    getGeometry
+    getGeometry,
+    convertLatLongToLongLat
 };

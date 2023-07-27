@@ -49,7 +49,7 @@ const seedDB = async () =>
         c.reviews = [];
         c.author = "6491f01ad5a77a2dd1c8ab80";
         c.location = getLocationString(chosenPlace);
-        c.geometry = geo.getGeometry(chosenPlace.latitude, chosenPlace.longitude);
+        c.geometry = geo.convertLatLongToLongLat(chosenPlace.latitude, chosenPlace.longitude);
         // finally, save data to mongo
         // await c.save();
         await console.log(`Camp site ${i + 1}, ${c.title}, has been saved to DB.`);
