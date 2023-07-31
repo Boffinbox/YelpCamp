@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Review = require("./review");
 const Schema = mongoose.Schema;
+const { cloudinary } = require("../cloudinary");
 
 // https://res.cloudinary.com/dejzcp0js/image/upload/v1689607713/YelpCamp/xskfqxlb8df513ml3mgp.jpg
 
@@ -70,6 +71,10 @@ campgroundSchema.post("findOneAndDelete", async function (doc)
                 $in: doc.reviews
             }
         })
+        for (let image of doc.images)
+        {
+            await cloudinary.uploader.destroy(image.filename);
+        }
     }
 });
 
