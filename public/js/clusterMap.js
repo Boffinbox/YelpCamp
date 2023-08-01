@@ -3,7 +3,7 @@
 // https://account.mapbox.com
 mapboxgl.accessToken = mapToken;
 const map = new mapboxgl.Map({
-    container: 'map',
+    container: 'clustermap',
     // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
     style: 'mapbox://styles/mapbox/outdoors-v12',
     center: [15, 52],
