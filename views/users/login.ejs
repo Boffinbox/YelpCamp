@@ -1,21 +1,29 @@
 <% layout("layouts/boilerplate") %>
-<div class="row">
-    <h1 class="text-center">Login</h1>
-    <div class="col-6 offset-3">
-        <form action="/login" method="POST" class="needs-validation" novalidate>
-            <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" id="username" name="username" class="form-control" required>
-                <div class="invalid-feedback">Username cannot be empty.</div>
-                <div class="valid-feedback">Looks okay!</div>
+<div class="row justify-content-center">
+    <div class="col-md-6 col-xl-4">
+        <div class="card shadow">
+            <img class="card-img-top" src="https://res.cloudinary.com/dejzcp0js/image/upload/v1690908157/YelpCamp/HomePage/myhyfrwmppida9unwevl.jpg" style="aspect-ratio: 1.3337;">
+            <div class="card-body">
+                <h5 class="card-title">Login</h5>
+                <form action="/login" method="POST" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" id="username" name="username" class="form-control" autofocus required>
+                        <div class="invalid-feedback">Username cannot be empty.</div>
+                        <div class="valid-feedback">Looks okay!</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" id="password" name="password" class="form-control" required>
+                        <div class="invalid-feedback">Password cannot be empty.</div>
+                        <div class="valid-feedback">Looks okay!</div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success">Login</button>
+                    </div>
+                </form>
             </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" id="password" name="password" class="form-control" required>
-                <div class="invalid-feedback">Password cannot be empty.</div>
-                <div class="valid-feedback">Looks okay!</div>
-            </div>
-            <button class="btn btn-success">Login</button>
-        </form>
+        </div>
     </div>
 </div>
+<script src="/js/bootstrapFormValidator.js"></script>

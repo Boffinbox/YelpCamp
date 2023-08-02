@@ -1,0 +1,37 @@
+.nav-link {
+    padding: 0.25rem 0;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    margin-left: 1rem;
+    border-bottom: 0.25rem solid transparent;
+}
+
+.nav-link:hover {
+    color: rgba(255, 255, 255, 0.7);
+    border-bottom-color: rgba(255, 255, 255, 0.5);
+}
+
+.nav-link.active {
+    color: white;
+    border-bottom-color: rgba(255, 255, 255, 0.5);
+}
+
+.nav-link:focus {
+    color: orange;
+}
+
+.navbar-brand {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.navbar-brand:hover {
+    color: rgba(255, 255, 255, 1);
+}
+
+.navbar-brand:active {
+    color: white;
+}
+
+.navbar-brand:focus {
+    color: orange;
+}
