@@ -91,12 +91,14 @@ app.use(mongoSanitize());
 
 const sessionConfig =
 {
-    secret: "totallynotsecretatall",
+    name: "9dyMEye6",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie:
     {
         httpOnly: true,
+        // secure: true,
         expires: Date.now() + (1000 * 60 * 60 * 24 * 7),
         maxAge: (1000 * 60 * 60 * 24 * 7)
     }
@@ -112,7 +114,6 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next) => 
 {
-    console.log(req.query);
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
     res.locals.currentUser = req.user;
