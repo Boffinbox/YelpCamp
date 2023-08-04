@@ -5,7 +5,7 @@ const htmlSanitizeExtension = (baseJoi) => ({
     type: "string",
     base: baseJoi.string(),
     messages: {
-        "string.escapeHTML": "{{#label}} must not include HTML!"
+        "string.escapeHTML": "Oi! {{#label}} must not include HTML!"
     },
     rules: {
         escapeHTML: {
@@ -59,3 +59,13 @@ const reviewSchema = Joi.object(
 )
 
 module.exports.reviewSchema = reviewSchema;
+
+const userSchema = Joi.object(
+    {
+        username: Joi.string().required().escapeHTML(),
+        email: Joi.string().escapeHTML(),
+        password: Joi.string().required().escapeHTML()
+    }
+).required()
+
+module.exports.userSchema = userSchema;
