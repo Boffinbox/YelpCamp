@@ -30,9 +30,12 @@ const User = require("./models/user");
 
 // start mongoose
 const mongoose = require("mongoose");
+const dbUrl = process.env.DB_URL
 
-// hardcoded address for now, whilst i setup
-mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp')
+// previous hardcoded address, whilst i was setting up
+const hardcodedUrl = "mongodb://127.0.0.1:27017/yelp-camp"
+
+mongoose.connect(dbUrl)
     .then(() =>
     {
         console.log(`MongoDB Connection Open :)`);
