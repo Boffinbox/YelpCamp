@@ -4,16 +4,17 @@ const passport = require("passport");
 const users = require("../controllers/users.js");
 
 const tryCatchAsync = require("../helpers/trycatchasync")
+const validateUser = require("../helpers/validateUser");
 const isLoggedIn = require("../helpers/isLoggedIn");
 const storeReturnTo = require("../helpers/storeReturnTo");
 
 router.route("/register")
     .get(users.renderRegister)
-    .post(tryCatchAsync(users.register));
+    .post(validateUser, tryCatchAsync(users.register));
 
 router.route("/login")
     .get(users.renderLogin)
-    .post(storeReturnTo, passport.authenticate("local", { failureFlash: true, failureRedirect: "/login" }), tryCatchAsync(users.login));
+    .post(storeReturnTo, validateUser, passport.authenticate("local", { failureFlash: true, failureRedirect: "/login" }), tryCatchAsync(users.login));
 
 router.get("/logout", isLoggedIn, users.logout);
 

@@ -14,6 +14,7 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
+const mongoStore = require("connect-mongo");
 
 const ExpressError = require("./helpers/expresserror");
 
@@ -31,8 +32,11 @@ const User = require("./models/user");
 // start mongoose
 const mongoose = require("mongoose");
 
-// hardcoded address for now, whilst i setup
-mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp')
+const dbUrl = process.env.DB_URL || "mongodb://127.0.0.1:27017/yelp-camp"
+// break glass to manually override
+// const dbUrl = "mongodb://127.0.0.1:27017/yelp-camp"
+
+mongoose.connect(dbUrl)
     .then(() =>
     {
         console.log(`MongoDB Connection Open :)`);
@@ -45,7 +49,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/yelp-camp')
 // end mongoose
 
 const app = express();
-const port = 3000;
 // set view engine and views
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
@@ -90,8 +93,22 @@ app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")))
 app.use(mongoSanitize());
 
+const store = mongoStore.create({
+    mongoUrl: dbUrl,
+    touchAfter: 24 * 60 * 60,
+    crypto: {
+        secret: process.env.MONGOSTORE_SECRET
+    }
+});
+
+store.on("error", function (err)
+{
+    console.log("Session store error: ", err);
+})
+
 const sessionConfig =
 {
+    store,
     name: "9dyMEye6",
     secret: process.env.SESSION_SECRET,
     resave: false,
@@ -264,8 +281,13 @@ app.use((err, req, res, next) =>
 });
 
 // lastly, serve the app
+const port = process.env.PORT || 3000;
 
-app.listen(port, () =>
+app.listen(port, (err) =>
 {
+    if (err)
+    {
+        console.log(`Problem found with serving app on ${port}:` + err);
+    }
     console.log(`Serving on port ${port}`)
 });
