@@ -32,8 +32,8 @@ const User = require("./models/user");
 // start mongoose
 const mongoose = require("mongoose");
 
-const dbUrl = process.env.DB_URL
-// or use previous hardcoded address
+const dbUrl = process.env.DB_URL || "mongodb://127.0.0.1:27017/yelp-camp"
+// break glass to manually override
 // const dbUrl = "mongodb://127.0.0.1:27017/yelp-camp"
 
 mongoose.connect(dbUrl)
@@ -49,7 +49,6 @@ mongoose.connect(dbUrl)
 // end mongoose
 
 const app = express();
-const port = 3000;
 // set view engine and views
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
@@ -282,6 +281,7 @@ app.use((err, req, res, next) =>
 });
 
 // lastly, serve the app
+const port = process.env.PORT || 3000;
 
 app.listen(port, () =>
 {
