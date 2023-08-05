@@ -14,6 +14,7 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
+const mongoStore = require("connect-mongo");
 
 const ExpressError = require("./helpers/expresserror");
 
@@ -30,10 +31,10 @@ const User = require("./models/user");
 
 // start mongoose
 const mongoose = require("mongoose");
-const dbUrl = process.env.DB_URL
 
-// previous hardcoded address, whilst i was setting up
-const hardcodedUrl = "mongodb://127.0.0.1:27017/yelp-camp"
+// const dbUrl = process.env.DB_URL
+// or use previous hardcoded address
+const dbUrl = "mongodb://127.0.0.1:27017/yelp-camp"
 
 mongoose.connect(dbUrl)
     .then(() =>
@@ -93,8 +94,22 @@ app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")))
 app.use(mongoSanitize());
 
+const store = mongoStore.create({
+    mongoUrl: dbUrl,
+    touchAfter: 24 * 60 * 60,
+    crypto: {
+        secret: process.env.MONGOSTORE_SECRET
+    }
+});
+
+store.on("error", function (err)
+{
+    console.log("Session store error: ", err);
+})
+
 const sessionConfig =
 {
+    store,
     name: "9dyMEye6",
     secret: process.env.SESSION_SECRET,
     resave: false,
