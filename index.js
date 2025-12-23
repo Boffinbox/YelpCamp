@@ -93,12 +93,12 @@ app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")))
 app.use(mongoSanitize());
 
-const store = mongoStore.create({
+const store = mongoStore.MongoStore.create({
     mongoUrl: dbUrl,
     touchAfter: 24 * 60 * 60,
-    crypto: {
+    cryptoAdapter: mongoStore.createWebCryptoAdapter({
         secret: process.env.MONGOSTORE_SECRET
-    }
+    }),
 });
 
 store.on("error", function (err)
